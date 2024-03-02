@@ -1,7 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.MemberRepository;
+import com.example.demo.repository.AccountRepository;
 import com.example.demo.security.CustomUserDetailsService;
 import com.example.demo.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfigurer  {
 
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String whiteList[] = {
@@ -72,7 +71,7 @@ public class SecurityConfigurer  {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService(memberRepository);
+        return new CustomUserDetailsService(accountRepository);
     }
 
     @Bean

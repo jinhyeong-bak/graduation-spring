@@ -1,17 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Member;
+import com.example.demo.domain.Account;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignUpRequest;
 import com.example.demo.dto.TokenResponse;
 import com.example.demo.exception.EmailAlreadyExistException;
-import com.example.demo.exception.TokenRefreshFailException;
 import com.example.demo.infrastructure.jwt.JwtEntity;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.MemberRepository;
+import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.TokenRepository;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,14 +19,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +34,7 @@ class AccountServiceTest {
     @Mock
     TokenRepository tokenRepository;
     @Mock
-    MemberRepository memberRepository;
+    AccountRepository accountRepository;
     @InjectMocks
     AccountService accountService;
 
@@ -60,11 +54,11 @@ class AccountServiceTest {
         String email = "user@test.com";
         String password = "0000";
 
-        Member member = new Member();
-        ReflectionTestUtils.setField(member, "id", 1L);
-        ReflectionTestUtils.setField(member, "email", email);
-        ReflectionTestUtils.setField(member, "password", pe.encode(password));
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
+        Account account = new Account();
+        ReflectionTestUtils.setField(account, "id", 1L);
+        ReflectionTestUtils.setField(account, "email", email);
+        ReflectionTestUtils.setField(account, "password", pe.encode(password));
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
         LoginRequest dto = new LoginRequest();
         dto.setEmail(email);
@@ -82,11 +76,11 @@ class AccountServiceTest {
         String email = "user@test.com";
         String password = "0000";
 
-        Member member = new Member();
-        ReflectionTestUtils.setField(member, "id", 1L);
-        ReflectionTestUtils.setField(member, "email", email);
-        ReflectionTestUtils.setField(member, "password", pe.encode(password));
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
+        Account account = new Account();
+        ReflectionTestUtils.setField(account, "id", 1L);
+        ReflectionTestUtils.setField(account, "email", email);
+        ReflectionTestUtils.setField(account, "password", pe.encode(password));
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
         LoginRequest dto = new LoginRequest();
         dto.setEmail(email);
@@ -102,11 +96,11 @@ class AccountServiceTest {
         String email = "user@test.com";
         String password = "0000";
 
-        Member member = new Member();
-        ReflectionTestUtils.setField(member, "id", 1L);
-        ReflectionTestUtils.setField(member, "email", email);
-        ReflectionTestUtils.setField(member, "password", pe.encode(password));
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
+        Account account = new Account();
+        ReflectionTestUtils.setField(account, "id", 1L);
+        ReflectionTestUtils.setField(account, "email", email);
+        ReflectionTestUtils.setField(account, "password", pe.encode(password));
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         LoginRequest dto = new LoginRequest();
         dto.setEmail(email);
@@ -124,12 +118,12 @@ class AccountServiceTest {
         String email = "user@test.com";
         String password = "0000";
 
-        Member member = new Member();
-        ReflectionTestUtils.setField(member, "email", email);
-        ReflectionTestUtils.setField(member, "password", password);
-        ReflectionTestUtils.setField(member, "name", name);
+        Account account = new Account();
+        ReflectionTestUtils.setField(account, "email", email);
+        ReflectionTestUtils.setField(account, "password", password);
+        ReflectionTestUtils.setField(account, "name", name);
 
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
         SignUpRequest signUpRequest = new SignUpRequest();
         signUpRequest.setEmail(email);
@@ -148,14 +142,14 @@ class AccountServiceTest {
         String email = "user@test.com";
         String refreshToken = jwtUtil.createToken(userPk, 1000L * 60 * 60);
 
-        Member member = new Member();
-        ReflectionTestUtils.setField(member, "id", userPk);
-        ReflectionTestUtils.setField(member, "email", email);
+        Account account = new Account();
+        ReflectionTestUtils.setField(account, "id", userPk);
+        ReflectionTestUtils.setField(account, "email", email);
 
         JwtEntity jwtEntity = new JwtEntity();
         ReflectionTestUtils.setField(jwtEntity, "refreshToken", refreshToken);
 
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
         when(tokenRepository.findByUserPk(0L)).thenReturn(Optional.of(jwtEntity));
 
         //when

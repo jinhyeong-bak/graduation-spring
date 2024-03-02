@@ -2,15 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignUpRequest;
-import com.example.demo.domain.Member;
+import com.example.demo.domain.Account;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.exception.TokenRefreshFailException;
 import com.example.demo.infrastructure.jwt.JwtEntity;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.dto.TokenResponse;
-import com.example.demo.repository.MemberRepository;
+import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.TokenRepository;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +28,7 @@ import java.util.Optional;
 @Transactional
 @RequiredArgsConstructor
 public class AccountService {
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
     private final TokenRepository tokenRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder pe;
@@ -49,22 +48,22 @@ public class AccountService {
 
         log.info("login 함수 호출 id = {}", email);
 
-        Member member = memberRepository.findByEmail(dto.getEmail()).orElseThrow(
+        Account account = accountRepository.findByEmail(dto.getEmail()).orElseThrow(
                 () -> new UsernameNotFoundException(userNameNotFoundMsg + ": " + email)
         );
 
 
-        if(!comparePassword(member.getPassword(), password)) {
+        if(!comparePassword(account.getPassword(), password)) {
             log.info("login password 검증 실패 id = {}, password={}", email, password);
             throw new BadCredentialsException(badCredentialsMsg);
         }
 
         log.info("login password 검증 성공 id = {}", email);
 
-        String accessToken = jwtUtil.createToken(member.getId(), accessValidTime);
-        String refreshToken = jwtUtil.createToken(member.getId(), refreshValidTime);
+        String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
+        String refreshToken = jwtUtil.createToken(account.getId(), refreshValidTime);
 
-        JwtEntity jwtEntity = JwtEntity.createEntityWhenLogin(member.getId(), refreshToken);
+        JwtEntity jwtEntity = JwtEntity.createEntityWhenLogin(account.getId(), refreshToken);
         tokenRepository.save(jwtEntity);
 
         return new TokenResponse(accessToken, refreshToken);
@@ -84,14 +83,14 @@ public class AccountService {
 
         log.info("회원가입 서비스 함수 호출 name={}, email={}, password={}", name, email, encodedPassword);
 
-        Optional<Member> foundByEmail = memberRepository.findByEmail(email);
+        Optional<Account> foundByEmail = accountRepository.findByEmail(email);
         if(foundByEmail.isPresent()){
             log.error("이미 존재하는 이메일이 회원가입 요청으로 넘어왔다. email: " + email);
             throw new EmailAlreadyExistException(email);
         }
 
-        Member newMember = Member.createSignUpMember(name, email, encodedPassword);
-        memberRepository.save(newMember);
+        Account newAccount = Account.createSignUpMember(name, email, encodedPassword);
+        accountRepository.save(newAccount);
 
         log.info("회원가입 서비스 성공 name={}, email={}, password={}", name, email, encodedPassword);
     }
@@ -99,11 +98,11 @@ public class AccountService {
     public TokenResponse refresh(String email, String refreshToken) {
 
         try {
-            Member member = memberRepository.findByEmail(email).orElseThrow(
+            Account account = accountRepository.findByEmail(email).orElseThrow(
                     () -> new UsernameNotFoundException("User not found with email: " + email)
             );
 
-            JwtEntity jwt = tokenRepository.findByUserPk(member.getId()).orElseThrow(
+            JwtEntity jwt = tokenRepository.findByUserPk(account.getId()).orElseThrow(
                     () -> new NoSuchElementException("User doesn't have RefreshToken")
             );
 
@@ -111,7 +110,7 @@ public class AccountService {
                 jwtUtil.validate(refreshToken);
             }
 
-            String accessToken = jwtUtil.createToken(member.getId(), accessValidTime);
+            String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (Exception ex) {

@@ -1,8 +1,8 @@
 package com.example.demo.security;
 
 
-import com.example.demo.domain.Member;
-import com.example.demo.repository.MemberRepository;
+import com.example.demo.domain.Account;
+import com.example.demo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
@@ -14,13 +14,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("loadUserByUsername called");
 
-        Member result = memberRepository.findByEmail(username).orElseThrow(
+        Account result = accountRepository.findByEmail(username).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with email: " + username)
         );
 

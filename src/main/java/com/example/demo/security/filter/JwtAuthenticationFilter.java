@@ -1,6 +1,6 @@
 package com.example.demo.security.filter;
 
-import com.example.demo.domain.Member;
+import com.example.demo.domain.Account;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -50,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jwtUtil.validate(token);       // 검증 실패 시 예외 발생
 
                 final Long userPk = jwtUtil.getUserPk(token);
-                UserDetails userDetails = Member.createLoginMember(userPk);
+                UserDetails userDetails = Account.createLoginAccount(userPk);
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
