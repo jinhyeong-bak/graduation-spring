@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/account")
 public class AccountController {
     private final AccountService loginService;
 
@@ -37,7 +38,7 @@ public class AccountController {
         loginService.signUp(signUpDto);
     }
 
-    @PostMapping("/auth/refresh")
+    @PostMapping("/refresh")
     @ApiResponse(responseCode = "401", ref = "refreshEx")
     public TokenResponse refresh(@RequestBody RefreshRequest request) {
         return loginService.refresh(request.getEmail(), request.getRefreshToken());
