@@ -61,7 +61,7 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .post("/auth/refresh")
+                        .post("/account/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"" + email + "\"," + " \"refreshToken\":\"" + refreshToken + "\"}")
                 )

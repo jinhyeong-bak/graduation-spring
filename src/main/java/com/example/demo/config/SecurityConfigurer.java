@@ -25,10 +25,7 @@ public class SecurityConfigurer  {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String whiteList[] = {
-            "/login",
-            "/logout",
-            "/signup",
-            "/auth/refresh",
+            "/account/**",
             "/css/**",
             "/*.ico",
             "/error",
