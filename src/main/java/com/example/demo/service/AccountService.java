@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.SignUpRequest;
+import com.example.demo.dto.JoinRequest;
 import com.example.demo.domain.Account;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.exception.TokenRefreshFailException;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Random;
 
 
 @Slf4j
@@ -30,6 +31,7 @@ import java.util.Optional;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final TokenRepository tokenRepository;
+    private final EmailService emailService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder pe;
 
@@ -48,7 +50,7 @@ public class AccountService {
 
         log.info("login 함수 호출 id = {}", email);
 
-        Account account = accountRepository.findByEmail(dto.getEmail()).orElseThrow(
+        Account account = accountRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException(userNameNotFoundMsg + ": " + email)
         );
 
@@ -76,7 +78,7 @@ public class AccountService {
         return pe.encode(password);
     }
 
-    public void signUp(SignUpRequest signUpDto) {
+    public void signUp(JoinRequest signUpDto) {
         String name = signUpDto.getName();
         String email = signUpDto.getEmail();
         String encodedPassword = encodePassword(signUpDto.getPassword());
@@ -85,7 +87,7 @@ public class AccountService {
 
         Optional<Account> foundByEmail = accountRepository.findByEmail(email);
         if(foundByEmail.isPresent()){
-            log.error("이미 존재하는 이메일이 회원가입 요청으로 넘어왔다. email: " + email);
+            log.error("이미 존재하는 이메일이 회원 가입 요청으로 넘어왔다. email: " + email);
             throw new EmailAlreadyExistException(email);
         }
 
@@ -95,7 +97,13 @@ public class AccountService {
         log.info("회원가입 서비스 성공 name={}, email={}, password={}", name, email, encodedPassword);
     }
 
+    public boolean isEmailDuplicated(String email) {
+        Optional<Account> foundByEmail = accountRepository.findByEmail(email);
+        return foundByEmail.isPresent() ? true : false;
+    }
+
     public TokenResponse refresh(String email, String refreshToken) {
+        log.info("refresh 요청 접수 email:{}, refreshToken: {}", email, refreshToken);
 
         try {
             Account account = accountRepository.findByEmail(email).orElseThrow(
@@ -111,11 +119,32 @@ public class AccountService {
             }
 
             String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
+            log.info("refresh 요청 처리 성공 email:{}, refreshToken: {}", email, refreshToken);
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (Exception ex) {
             throw new TokenRefreshFailException(ex.getMessage(), ex);
         }
 
+
     }
+
+    public String emailExistsVerification(String email) {
+        log.info("이메일 존재 검증 메서드 호출 email: {}", email);
+        String verificationCode = generateRandom6Digit();
+        emailService.sendVerificationCode(email, verificationCode);
+        return verificationCode;
+    }
+
+    private static String generateRandom6Digit(){
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+
+        for(int i = 0; i < 6; i++) {
+            sb.append((char)(random.nextInt(10) + '0'));
+        }
+
+        return sb.toString();
+    }
+
 }

@@ -11,12 +11,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Hidden
 @Slf4j
@@ -100,4 +108,28 @@ public class GlobalExceptionController {
 
         return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
     }
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResultResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
+        log.info("validation error ", ex);
+        ErrorResultResponse response = new ErrorResultResponse("Validation Error", "요청 형식이 올바르지 않습니다.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<ErrorResultResponse> mailSendException(MailException ex) {
+        log.info("MailSendException 발생", ex);
+
+        ResponseEntity re = ResponseEntity.internalServerError().build();
+
+        if(ex instanceof MailSendException) {
+            ErrorResultResponse response = new ErrorResultResponse("Mail Send Error", "메일을 전송하지 못했습니다.");
+            re =  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+
+        return re;
+    }
+
+
 }

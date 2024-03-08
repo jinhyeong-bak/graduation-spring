@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Account;
 import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.SignUpRequest;
+import com.example.demo.dto.JoinRequest;
 import com.example.demo.dto.TokenResponse;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.infrastructure.jwt.JwtEntity;
@@ -125,13 +125,13 @@ class AccountServiceTest {
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setEmail(email);
-        signUpRequest.setPassword(password);
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setEmail(email);
+        joinRequest.setPassword(password);
 
         // test
         assertThatThrownBy(
-                () -> accountService.signUp(signUpRequest)
+                () -> accountService.signUp(joinRequest)
         ).isInstanceOf(EmailAlreadyExistException.class);
     }
 

@@ -28,7 +28,7 @@ public class SecurityConfigurer  {
             "/login",
             "/logout",
             "/signup",
-            "/auth/refresh",
+            "/account/**",
             "/css/**",
             "/*.ico",
             "/error",
