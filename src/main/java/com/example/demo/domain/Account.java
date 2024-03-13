@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Getter
@@ -15,6 +16,9 @@ public class Account implements UserDetails {
     private String name;
     private String email;
     private String password;
+    private Integer wrongPasswordCount;
+    private LocalDateTime loginLastTryTime;
+    private LocalDateTime loginLockTime;
 
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
@@ -24,6 +28,9 @@ public class Account implements UserDetails {
         account.name = name;
         account.email = email;
         account.password = encodedPassword;
+        account.wrongPasswordCount = 0;
+        account.loginLastTryTime = LocalDateTime.of(1,1, 1, 1, 1);
+        account.loginLockTime = LocalDateTime.of(1,1, 1, 1, 1);
         return account;
     }
 
@@ -62,4 +69,31 @@ public class Account implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
+    public Integer getWrongPasswordCount() {
+        return wrongPasswordCount;
+    }
+    public void incWrongPasswordCount() {
+        wrongPasswordCount++;
+    }
+
+    public void initWrongPasswordCount() {
+        wrongPasswordCount = 0;
+    }
+
+    public void LockAccount() {
+        loginLockTime = LocalDateTime.now();
+    }
+
+    public void renewLoginLastTryTime() {
+        loginLastTryTime = LocalDateTime.now();
+    }
+
+    public LocalDateTime getLoginLastTryTime() {
+        return loginLastTryTime;
+    }
+    public void renewalPassword(String password) {
+        this.password = password;
+    }
+
 }

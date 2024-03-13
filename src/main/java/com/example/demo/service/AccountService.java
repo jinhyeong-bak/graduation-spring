@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.JoinRequest;
 import com.example.demo.domain.Account;
+import com.example.demo.dto.NewPassword;
+import com.example.demo.exception.AccountLockedException;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.exception.TokenRefreshFailException;
 import com.example.demo.infrastructure.jwt.JwtEntity;
@@ -19,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
@@ -42,7 +46,10 @@ public class AccountService {
     private String badCredentialsMsg;
     private final long accessValidTime = 30 * 60 * 1000L;             // 제한시간 30분
     private final long refreshValidTime = 7 * 24 * 60 * 60 * 1000L;    //  제한 시간 일주일
+    private final int loginAttemptLimit = 5;
+    private final int LockPeriodMinutes = 5;
 
+    @Transactional(noRollbackFor = {AccountLockedException.class, BadCredentialsException.class})
     public TokenResponse login(LoginRequest dto) {
 
         String email = dto.getEmail();
@@ -54,14 +61,39 @@ public class AccountService {
                 () -> new UsernameNotFoundException(userNameNotFoundMsg + ": " + email)
         );
 
+        log.info("계정 잠금 시간 확인: " +  account.getLoginLockTime());
+        LocalDateTime accountUnlockTime = account.getLoginLockTime().plusMinutes(LockPeriodMinutes);
 
+        // 연속 시도는 24시간 안에만 유효
+        if(Duration.between(account.getLoginLastTryTime(), LocalDateTime.now()).toMillis() > 1000L * 60 * 60 * 24) {
+            account.renewLoginLastTryTime();
+            account.initWrongPasswordCount();
+        }
+
+        // 아이디가 잠긴 상태인지 확인
+        long differenceInMillis = Duration.between(LocalDateTime.now(), accountUnlockTime).toMillis();
+        if(differenceInMillis > 0) {
+            throw new AccountLockedException("email: " + email + " 비밀번호 오류 5회로 계정 잠금 남은 시간: " + differenceInMillis, differenceInMillis);
+        }
+
+        // 비밀번호 확인
         if(!comparePassword(account.getPassword(), password)) {
             log.info("login password 검증 실패 id = {}, password={}", email, password);
+            Integer wrongPasswordCount = account.getWrongPasswordCount();
+            log.info("wrongPasswordCount: {}", wrongPasswordCount);
+            if(wrongPasswordCount + 1 == loginAttemptLimit) {
+                account.LockAccount();
+                account.initWrongPasswordCount();
+                throw new AccountLockedException("email: " + email + " 비밀번호 오류 5회로 계정 잠금 남은 시간: " +  5 * 60 * 1000L, 5 * 60 * 1000L);
+            }
+            else {
+                account.incWrongPasswordCount();
+            }
             throw new BadCredentialsException(badCredentialsMsg);
         }
 
         log.info("login password 검증 성공 id = {}", email);
-
+        account.initWrongPasswordCount();
         String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
         String refreshToken = jwtUtil.createToken(account.getId(), refreshValidTime);
 
@@ -95,9 +127,10 @@ public class AccountService {
         accountRepository.save(newAccount);
 
         log.info("회원가입 서비스 성공 name={}, email={}, password={}", name, email, encodedPassword);
+        log.info("계정 잠금 시간 확인: " +  newAccount.getLoginLockTime());
     }
 
-    public boolean isEmailDuplicated(String email) {
+    public boolean isEmailExists(String email) {
         Optional<Account> foundByEmail = accountRepository.findByEmail(email);
         return foundByEmail.isPresent() ? true : false;
     }
@@ -129,11 +162,62 @@ public class AccountService {
 
     }
 
+    public String findPassword(String email) {
+        log.info("비밀번호 찾기 메서드 호출 email: {}", email);
+
+        String subject = "dripMid 비밀번호 찾기 안내 메일";
+        String body = "";
+        String verificationCode = generateRandom6Digit();
+
+        if(!isEmailExists(email)) {
+            body = "dripMind 비밀번호 찾기 안내 메일입니다."
+                    + "\r\n"
+                    + email +"로 가입된 아이디가 없습니다.\r\n"
+                    + "\r\n";
+        }
+        else {
+            body = "dripMind 비밀번호 찾기 안내 메일입니다."
+                    + "\r\n"
+                    + "사용자가 본인임을 확인하려고 합니다. 메시지가 표시되면 다음 확인 코드를 입력하세요.\r\n"
+                    + "\r\n"
+                    + "확인 코드: "
+                    + verificationCode
+                    + "\r\n";
+        }
+
+        emailService.sendEmail(email, subject, body);
+        return verificationCode;
+    }
+
     public String emailExistsVerification(String email) {
         log.info("이메일 존재 검증 메서드 호출 email: {}", email);
         String verificationCode = generateRandom6Digit();
-        emailService.sendVerificationCode(email, verificationCode);
+
+        String subject = "dripMid 회원가입 확인 메일";
+        String body = "새로운 dripMind 계정 생성 프로세스를 시작해 주셔서 감사합니다."
+                + "\r\n"
+                + "사용자가 본인임을 확인하려고 합니다. 메시지가 표시되면 다음 확인 코드를 입력하세요.\r\n"
+                + "\r\n"
+                + "확인 코드: "
+                + verificationCode
+                + "\r\n";
+
+        emailService.sendEmail(email, subject, body);
         return verificationCode;
+    }
+
+    public void renewalPassword(NewPassword newPassword) {
+
+        String email = newPassword.getEmail();
+        String password = newPassword.getPassword();
+
+        log.info("비밀번호 갱신 메서드 호출 email: {}", email);
+
+        Account account = accountRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: " + email)
+        );
+
+        account.renewalPassword(password);
     }
 
     private static String generateRandom6Digit(){

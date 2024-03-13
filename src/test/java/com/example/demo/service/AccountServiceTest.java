@@ -163,4 +163,34 @@ class AccountServiceTest {
         assertThat(tokenResponse.getRefreshToken()).isEqualTo(refreshToken);
     }
 
+    @Test
+    void isEmailDuplicated_withAlreadyExistEmail_returnsTrue() {
+        //given
+        String email = "test@test.com";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(new Account()));
+
+        //when
+        boolean result = accountService.isEmailExists(email);
+
+        //then
+        assertThat(result).isTrue();
+
+    }
+
+    @Test
+    void isEmailDuplicated_withNonExistEmail_returnsFalse() {
+        //given
+        String email = "test@test.com";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        boolean result = accountService.isEmailExists(email);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void emailExistsVerification() {
+    }
 }

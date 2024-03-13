@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.JoinRequest;
 import com.example.demo.dto.TokenResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,12 +15,17 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.Mockito.when;
@@ -29,27 +37,12 @@ class AccountControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
-
     @Autowired
     JwtUtil jwtUtil;
-    @Mock
+    @MockBean
     AccountService accountService;
     @Autowired
     MockMvc mockMvc;
-
-    @TestConfiguration
-    static class AccountControllerTestConfig {
-        @Bean
-        @Primary
-        AccountService accountService() {
-            return Mockito.mock(AccountService.class);
-        }
-    }
-
-    @BeforeEach
-    public void setup() {
-        this.accountService = (AccountService)this.wac.getBean(AccountService.class);
-    }
 
     @Test
     void refresh() throws Exception {
@@ -61,7 +54,7 @@ class AccountControllerTest {
 
         mockMvc.perform(
                 MockMvcRequestBuilders
-                        .post("/auth/refresh")
+                        .post("/account/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"" + email + "\"," + " \"refreshToken\":\"" + refreshToken + "\"}")
                 )
@@ -70,4 +63,41 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.accessToken").value(refreshedAccessToken))
                 .andExpect(jsonPath("$.refreshToken").value(refreshToken));
     }
+
+    @Test
+    void join_withInvalidEmail_throwsMethodArgumentNotValidException() throws Exception {
+        String email = "usertest.com";
+        String password = "password";
+
+        testValidationEmailAndPassword(email, password);
+    }
+
+    @Test
+    void join_withInvalidPassword_throwsMethodArgumentNotValidException() throws Exception {
+        String email = "user@test.com";
+        String password = "password";
+
+        testValidationEmailAndPassword(email, password);
+
+        password = "PASSWORD";
+        testValidationEmailAndPassword(email, password);
+
+        password = "pApApApApA";
+        testValidationEmailAndPassword(email, password);
+    }
+
+    private void testValidationEmailAndPassword(String email, String password) throws Exception {
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setEmail(email);
+        joinRequest.setPassword(password);
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders
+                                .post("/account/join")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"email\": \"" + email + "\"," + " \"password\":\"" + password + "\"}")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
 }

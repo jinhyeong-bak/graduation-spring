@@ -1,5 +1,6 @@
 package com.example.demo.exception;
 
+import com.example.demo.dto.AccountLockErrorResponse;
 import com.example.demo.dto.ErrorResultResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwt;
@@ -107,6 +108,15 @@ public class GlobalExceptionController {
         String errorMessage = "error: " + ex.getMessage();
 
         return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<AccountLockErrorResponse> lockAccountException(AccountLockedException ex) {
+        log.info("lock Account Exception", ex);
+
+        String errorMsg = "비밀번호가 5회 이상 틀려서 계정이 5분간 잠긴 상태입니다.";
+
+        return ResponseEntity.badRequest().body(new AccountLockErrorResponse("AccountLocked", errorMsg, ex.getLockTimeRemainingMillis()));
     }
 
 

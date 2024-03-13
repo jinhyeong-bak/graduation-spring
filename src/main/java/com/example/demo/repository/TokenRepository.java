@@ -13,9 +13,6 @@ import java.util.*;
 @Repository
 public class TokenRepository {
 
-    private static Set<String> blackList = new HashSet<>();
-
-
     private final EntityManager em;
     public Long save(JwtEntity jwtEntity) {
         em.persist(jwtEntity);

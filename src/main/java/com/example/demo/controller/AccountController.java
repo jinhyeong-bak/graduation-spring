@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 
 import com.example.demo.dto.*;
+import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/account")
 public class AccountController {
     private final AccountService accountService;
-
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     @ApiResponse(responseCode = "401", ref = "loginEx")
@@ -38,21 +39,43 @@ public class AccountController {
 
     @PostMapping("/refresh")
     @ApiResponse(responseCode = "401", ref = "refreshEx")
-    public TokenResponse refresh(@RequestBody RefreshRequest request) {
-        return accountService.refresh(request.getEmail(), request.getRefreshToken());
+    @ResponseBody
+    public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {
+        TokenResponse response =  accountService.refresh(request.getEmail(), request.getRefreshToken());
+        log.info("refresh 호출 accessToken: {}, refreshToken: {}", response.getAccessToken(), response.getRefreshToken());
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/email/duplicate")
     public ResponseEntity emailDuplicate(@RequestBody @Valid EmailDto emailDto) {
-        boolean result = accountService.isEmailDuplicated(emailDto.getEmail());
-        return result ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.CONFLICT).build();
+        boolean result = accountService.isEmailExists(emailDto.getEmail());
+        return result ? ResponseEntity.status(HttpStatus.CONFLICT).build() : ResponseEntity.ok().build();
     }
 
-    @PostMapping("/email/exists")
-    public ResponseEntity<VerificationCodeDto> emailExists(@RequestBody @Valid EmailDto emailDto){
+    @PostMapping("/email/verification")
+    public ResponseEntity<VerificationCodeDto> emailVerification(@RequestBody @Valid EmailDto emailDto){
         String verificationCode = accountService.emailExistsVerification(emailDto.getEmail());
         VerificationCodeDto verificationCodeDto = new VerificationCodeDto(verificationCode);
         return ResponseEntity.ok().body(verificationCodeDto);
     }
+
+    @PostMapping("/password/verificationEmail")
+    public ResponseEntity<PasswordVerificationEmail> findPassword(@RequestBody @Valid EmailDto emailDto){
+        String verificationCode = accountService.findPassword(emailDto.getEmail());
+
+        String verificationToken = jwtUtil.createToken(-1L, 1000L * 60 * 5);
+        PasswordVerificationEmail response = new PasswordVerificationEmail();
+        response.setVerificationCode(verificationCode);
+        response.setVerificationToken(verificationToken);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/password/renewal")
+    public ResponseEntity renewalPassword(@RequestBody @Valid NewPassword newPassword){
+        jwtUtil.validate(newPassword.getVerificationToken());
+        accountService.renewalPassword(newPassword);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

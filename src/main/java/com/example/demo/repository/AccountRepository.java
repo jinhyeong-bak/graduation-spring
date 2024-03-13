@@ -22,6 +22,8 @@ public class AccountRepository {
         return account.getId();
     }
 
+
+
     public Optional<Account> findByEmail(String email) {
         log.info("findByEmail 호출 email={}", email);
 
@@ -33,4 +35,5 @@ public class AccountRepository {
 
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
+
 }
