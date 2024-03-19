@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 
 import com.example.demo.dto.*;
+import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
+
+    @Value("${security.jwt.validTime.accessToken}")
+    private long accessValidTime;           // 제한시간 30분
 
     @PostMapping("/login")
     @ApiResponse(responseCode = "401", ref = "loginEx")
@@ -63,7 +68,7 @@ public class AccountController {
     public ResponseEntity<PasswordVerificationEmail> findPassword(@RequestBody @Valid EmailDto emailDto){
         String verificationCode = accountService.findPassword(emailDto.getEmail());
 
-        String verificationToken = jwtUtil.createToken(-1L, 1000L * 60 * 5);
+        String verificationToken = jwtUtil.createToken(-1L, OAuthProvider.SELF,accessValidTime);
         PasswordVerificationEmail response = new PasswordVerificationEmail();
         response.setVerificationCode(verificationCode);
         response.setVerificationToken(verificationToken);

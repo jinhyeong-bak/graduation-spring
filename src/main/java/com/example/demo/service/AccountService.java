@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.domain.OAuthAccount;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.JoinRequest;
 import com.example.demo.domain.Account;
 import com.example.demo.dto.NewPassword;
+import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.exception.AccountLockedException;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.exception.TokenRefreshFailException;
@@ -11,6 +13,7 @@ import com.example.demo.infrastructure.jwt.JwtEntity;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.dto.TokenResponse;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.OAuthAccountRepository;
 import com.example.demo.repository.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +37,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
+    private final OAuthAccountRepository oAuthAccountRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
@@ -44,8 +48,10 @@ public class AccountService {
 
     @Value("${message.exception.BadCredentialsException}")
     private String badCredentialsMsg;
-    private final long accessValidTime = 30 * 60 * 1000L;             // 제한시간 30분
-    private final long refreshValidTime = 7 * 24 * 60 * 60 * 1000L;    //  제한 시간 일주일
+    @Value("${security.jwt.validTime.accessToken}")
+    private long accessValidTime;           // 제한시간 30분
+    @Value("${security.jwt.validTime.refreshToken}")
+    private long refreshValidTime;          // 제한 시간 일년
     private final int loginAttemptLimit = 5;
     private final int LockPeriodMinutes = 5;
 
@@ -94,10 +100,10 @@ public class AccountService {
 
         log.info("login password 검증 성공 id = {}", email);
         account.initWrongPasswordCount();
-        String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
-        String refreshToken = jwtUtil.createToken(account.getId(), refreshValidTime);
+        String accessToken = jwtUtil.createToken(account.getId(), OAuthProvider.SELF, accessValidTime);
+        String refreshToken = jwtUtil.createToken(account.getId(), OAuthProvider.SELF, refreshValidTime);
 
-        JwtEntity jwtEntity = JwtEntity.createEntityWhenLogin(account.getId(), refreshToken);
+        JwtEntity jwtEntity = JwtEntity.createEntityWhenLogin(account.getId(), OAuthProvider.SELF, refreshToken);
         tokenRepository.save(jwtEntity);
 
         return new TokenResponse(accessToken, refreshToken);
@@ -118,12 +124,17 @@ public class AccountService {
         log.info("회원가입 서비스 함수 호출 name={}, email={}, password={}", name, email, encodedPassword);
 
         Optional<Account> foundByEmail = accountRepository.findByEmail(email);
-        if(foundByEmail.isPresent()){
-            log.error("이미 존재하는 이메일이 회원 가입 요청으로 넘어왔다. email: " + email);
-            throw new EmailAlreadyExistException(email);
+        Optional<OAuthAccount> optionalAccount = oAuthAccountRepository.findByEmail(email);
+        if(foundByEmail.isPresent() || optionalAccount.isPresent()){
+            OAuthProvider oAuthProvider = OAuthProvider.SELF;
+            if(optionalAccount.isPresent()) {
+                oAuthProvider = optionalAccount.get().getOAuthProvider();
+            }
+            log.error("이미 존재하는 이메일이 회원 가입 요청으로 넘어왔다. email: {}, OAuthProvider: {}", email, oAuthProvider);
+            throw new EmailAlreadyExistException(email,  oAuthProvider);
         }
 
-        Account newAccount = Account.createSignUpMember(name, email, encodedPassword);
+        Account newAccount = Account.createSignUpMember(name, email, encodedPassword, OAuthProvider.SELF);
         accountRepository.save(newAccount);
 
         log.info("회원가입 서비스 성공 name={}, email={}, password={}", name, email, encodedPassword);
@@ -139,26 +150,34 @@ public class AccountService {
         log.info("refresh 요청 접수 email:{}, refreshToken: {}", email, refreshToken);
 
         try {
-            Account account = accountRepository.findByEmail(email).orElseThrow(
-                    () -> new UsernameNotFoundException("User not found with email: " + email)
-            );
+            String oAuthProviderStr = jwtUtil.getSpecifiedClaim(refreshToken, "oAuthProvider", String.class);
+            OAuthProvider oAuthProvider = Enum.valueOf(OAuthProvider.class, oAuthProviderStr);
+            long userPk = 0L;
 
-            JwtEntity jwt = tokenRepository.findByUserPk(account.getId()).orElseThrow(
-                    () -> new NoSuchElementException("User doesn't have RefreshToken")
-            );
-
-            if (refreshToken.equals(jwt.getRefreshToken())) {
-                jwtUtil.validate(refreshToken);
+            if(oAuthProvider == OAuthProvider.SELF) {
+                Account account = accountRepository.findByEmail(email).orElseThrow(
+                        () -> new UsernameNotFoundException("User not found with email: " + email)
+                );
+                userPk = account.getId();
+            }
+            else {
+                OAuthAccount oAuthAccount = oAuthAccountRepository.findByEmail(email).orElseThrow(
+                        () -> new UsernameNotFoundException("User not found with email: " + email)
+                );
+                userPk = oAuthAccount.getId();
             }
 
-            String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
+
+            jwtUtil.validate(refreshToken);
+
+            String accessToken = jwtUtil.createToken(userPk, oAuthProvider, accessValidTime);
+            refreshToken = jwtUtil.createToken(userPk, oAuthProvider, refreshValidTime);
             log.info("refresh 요청 처리 성공 email:{}, refreshToken: {}", email, refreshToken);
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (Exception ex) {
             throw new TokenRefreshFailException(ex.getMessage(), ex);
         }
-
 
     }
 

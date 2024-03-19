@@ -1,5 +1,6 @@
 package com.example.demo.domain;
 
+import com.example.demo.dto.oauth.OAuthProvider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,11 +20,13 @@ public class Account implements UserDetails {
     private Integer wrongPasswordCount;
     private LocalDateTime loginLastTryTime;
     private LocalDateTime loginLockTime;
+    @Enumerated(EnumType.STRING)
+    private OAuthProvider oAuthProvider;
 
     @Enumerated(EnumType.STRING)
     private RoleType roleType;
 
-    public static Account createSignUpMember(String name, String email, String encodedPassword) {
+    public static Account createSignUpMember(String name, String email, String encodedPassword, OAuthProvider oAuthProvider) {
         Account account = new Account();
         account.name = name;
         account.email = email;
@@ -31,6 +34,7 @@ public class Account implements UserDetails {
         account.wrongPasswordCount = 0;
         account.loginLastTryTime = LocalDateTime.of(1,1, 1, 1, 1);
         account.loginLockTime = LocalDateTime.of(1,1, 1, 1, 1);
+        account.oAuthProvider = oAuthProvider;
         return account;
     }
 

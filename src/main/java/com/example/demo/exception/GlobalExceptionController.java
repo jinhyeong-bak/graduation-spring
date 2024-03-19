@@ -1,6 +1,7 @@
 package com.example.demo.exception;
 
 import com.example.demo.dto.AccountLockErrorResponse;
+import com.example.demo.dto.EmailAlreadyExistErrorResponse;
 import com.example.demo.dto.ErrorResultResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwt;
@@ -104,10 +105,12 @@ public class GlobalExceptionController {
     }
 
     @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity<String> signUpException(RuntimeException ex) {
-        String errorMessage = "error: " + ex.getMessage();
+    public ResponseEntity<EmailAlreadyExistErrorResponse> signUpException(EmailAlreadyExistException ex) {
+        String error = "Email Already Exist Error";
+        String error_description = "이미 가입된 이메일입니다.";
+        EmailAlreadyExistErrorResponse response = new EmailAlreadyExistErrorResponse(error, error_description, ex.getOAuthProvider());
 
-        return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(AccountLockedException.class)
