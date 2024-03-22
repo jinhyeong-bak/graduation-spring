@@ -85,4 +85,13 @@ class TokenFilterTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
         ).andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void tokenFilterTest_withBlacklistedToken_returnsTokenBlacklistedException() throws Exception {
+        String accessToken = jwtUtil.createToken(0L, 0);
+
+        mockMvc.perform(
+                Mock
+        )
+    }
  }

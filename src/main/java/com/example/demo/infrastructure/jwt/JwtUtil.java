@@ -63,6 +63,10 @@ public class JwtUtil {
         return Long.valueOf(userPk);
     }
 
+    public Date getExpiredDate(String token) {
+        return getSpecifiedClaim(token, Claims.EXPIRATION, Date.class);
+    }
+
     public <T> T getSpecifiedClaim(String token, String claimName, Class<T> requiredType) {
         Claims claims = extractAllClaims(token);
         return claims.get(claimName, requiredType);

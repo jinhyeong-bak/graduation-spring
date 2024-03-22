@@ -1,7 +1,10 @@
 package com.example.demo.security.filter;
 
 import com.example.demo.domain.Account;
+import com.example.demo.exception.TokenBlackListedException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
+import com.example.demo.infrastructure.jwt.RedisToken;
+import com.example.demo.repository.RedisTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtUtil jwtUtil;
+    private final RedisTokenRepository redisTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -47,6 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(authentication == null) {
                 jwtUtil.validate(token);       // 검증 실패 시 예외 발생
+
+                if(redisTokenRepository.findById(token).isPresent()) {
+                    throw new TokenBlackListedException("black list에 올라간 accessToken으로부터 요청이 왔습니다. token: " + token);
+                }
 
                 final Long userPk = jwtUtil.getUserPk(token);
                 UserDetails userDetails = Account.createLoginAccount(userPk);

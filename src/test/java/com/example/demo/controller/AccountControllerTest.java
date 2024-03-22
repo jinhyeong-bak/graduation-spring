@@ -1,12 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.TokenResponse;
+import com.example.demo.dto.TokenPair;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +55,7 @@ class AccountControllerTest {
         String refreshToken = jwtUtil.createToken(0L, 1000L * 60 * 60);
         String refreshedAccessToken = jwtUtil.createToken(0L, 1000L * 60 * 60);
 
-        when(accountService.refresh(email, refreshToken)).thenReturn(new TokenResponse(refreshedAccessToken, refreshToken));
+        when(accountService.refresh(email, refreshToken)).thenReturn(new TokenPair(refreshedAccessToken, refreshToken));
 
         mockMvc.perform(
                 MockMvcRequestBuilders

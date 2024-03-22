@@ -4,12 +4,14 @@ import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.SignUpRequest;
 import com.example.demo.domain.Account;
 import com.example.demo.exception.EmailAlreadyExistException;
+import com.example.demo.exception.TokenBlackListedException;
 import com.example.demo.exception.TokenRefreshFailException;
-import com.example.demo.infrastructure.jwt.JwtEntity;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.dto.TokenResponse;
+import com.example.demo.dto.TokenPair;
+import com.example.demo.infrastructure.jwt.RedisToken;
 import com.example.demo.repository.AccountRepository;
-import com.example.demo.repository.TokenRepository;
+import com.example.demo.repository.RedisTokenRepository;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
+import java.util.Date;
 import java.util.Optional;
 
 
@@ -29,7 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AccountService {
     private final AccountRepository accountRepository;
-    private final TokenRepository tokenRepository;
+    private final RedisTokenRepository redisTokenRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder pe;
 
@@ -38,10 +40,10 @@ public class AccountService {
 
     @Value("${message.exception.BadCredentialsException}")
     private String badCredentialsMsg;
-    private final long accessValidTime = 30 * 60 * 1000L;             // 제한시간 30분
-    private final long refreshValidTime = 7 * 24 * 60 * 60 * 1000L;    //  제한 시간 일주일
+    private final long accessValidTime = 30 * 60 * 1000L;                    // 제한시간 30분
+    private final long refreshValidTime = 12 * 30 * 24 * 60 * 60 * 1000L;    //  제한 시간 일년
 
-    public TokenResponse login(LoginRequest dto) {
+    public TokenPair login(LoginRequest dto) {
 
         String email = dto.getEmail();
         String password = dto.getPassword();
@@ -63,10 +65,10 @@ public class AccountService {
         String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
         String refreshToken = jwtUtil.createToken(account.getId(), refreshValidTime);
 
-        JwtEntity jwtEntity = JwtEntity.createEntityWhenLogin(account.getId(), refreshToken);
-        tokenRepository.save(jwtEntity);
+        RedisToken refreshTokenRecord = RedisToken.createTokenInRedis(refreshToken, refreshValidTime);
+        redisTokenRepository.save(refreshTokenRecord);
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new TokenPair(accessToken, refreshToken);
     }
 
     private boolean comparePassword(String fromDb, String fromRequest) {
@@ -95,27 +97,39 @@ public class AccountService {
         log.info("회원가입 서비스 성공 name={}, email={}, password={}", name, email, encodedPassword);
     }
 
-    public TokenResponse refresh(String email, String refreshToken) {
+    public TokenPair refresh(String email, String refreshToken) {
 
         try {
             Account account = accountRepository.findByEmail(email).orElseThrow(
                     () -> new UsernameNotFoundException("User not found with email: " + email)
             );
 
-            JwtEntity jwt = tokenRepository.findByUserPk(account.getId()).orElseThrow(
-                    () -> new NoSuchElementException("User doesn't have RefreshToken")
-            );
+            jwtUtil.validate(refreshToken);
 
-            if (refreshToken.equals(jwt.getRefreshToken())) {
-                jwtUtil.validate(refreshToken);
+            if(redisTokenRepository.findById(refreshToken).isEmpty()) {
+                throw new TokenBlackListedException("버려진 refreshToken으로부터 refresh요청이 왔습니다. token: " + refreshToken);
             }
 
             String accessToken = jwtUtil.createToken(account.getId(), accessValidTime);
 
-            return new TokenResponse(accessToken, refreshToken);
+
+            return new TokenPair(accessToken, refreshToken);
         } catch (Exception ex) {
             throw new TokenRefreshFailException(ex.getMessage(), ex);
         }
 
+    }
+
+    public void logout(TokenPair tokenPair) {
+        log.info("AccountService logout 호출 accessToken: {}, refreshToken:{} ", tokenPair.getAccessToken(), tokenPair.getRefreshToken());
+        String accessToken = tokenPair.getAccessToken();
+        String refreshToken = tokenPair.getRefreshToken();
+
+        long ttl = jwtUtil.getExpiredDate(accessToken).getTime() - new Date().getTime();
+
+        RedisToken accessTokenRecord = RedisToken.createTokenInRedis(accessToken, ttl);
+
+        redisTokenRepository.save(accessTokenRecord);
+        redisTokenRepository.deleteById(refreshToken);
     }
 }

@@ -4,6 +4,7 @@ import com.example.demo.dto.ErrorResultResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,7 @@ public class GlobalExceptionController {
 
     @Value("${error.exception.TokenRefreshFailException}")
     private String refreshFailError;
-    @Value("${error.exception.TokenRefreshFailException}")
+    @Value("${message.exception.TokenRefreshFailException}")
     private String refreshFailMessage;
 
 
@@ -99,5 +100,13 @@ public class GlobalExceptionController {
         String errorMessage = "error: " + ex.getMessage();
 
         return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TokenBlackListedException.class)
+    public ResponseEntity<ErrorResultResponse> tokenBlackListed (RuntimeException ex) {
+        log.info(ex.getMessage(), ex);
+        ErrorResultResponse response = new ErrorResultResponse("AuthenticationError", "블랙리스트에 올라가 있는 토큰입니다.");
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }
