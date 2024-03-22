@@ -14,13 +14,15 @@ import java.util.Optional;
 public class AccountRepository {
 
     @PersistenceContext
-    EntityManager em;
+    private EntityManager em;
 
     public Long save(Account account) {
         log.info("save 함수 호출 email={}", account.getEmail());
         em.persist(account);
         return account.getId();
     }
+
+
 
     public Optional<Account> findByEmail(String email) {
         log.info("findByEmail 호출 email={}", email);
@@ -33,4 +35,5 @@ public class AccountRepository {
 
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
+
 }

@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Account;
 import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.SignUpRequest;
 import com.example.demo.dto.TokenPair;
+import com.example.demo.dto.JoinRequest;
+
+import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.infrastructure.jwt.RedisToken;
@@ -128,13 +130,13 @@ class AccountServiceTest {
 
         when(accountRepository.findByEmail(email)).thenReturn(Optional.of(account));
 
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setEmail(email);
-        signUpRequest.setPassword(password);
+        JoinRequest joinRequest = new JoinRequest();
+        joinRequest.setEmail(email);
+        joinRequest.setPassword(password);
 
         // test
         assertThatThrownBy(
-                () -> accountService.signUp(signUpRequest)
+                () -> accountService.signUp(joinRequest)
         ).isInstanceOf(EmailAlreadyExistException.class);
     }
 
@@ -143,7 +145,7 @@ class AccountServiceTest {
         //given
         Long userPk = 0L;
         String email = "user@test.com";
-        String refreshToken = jwtUtil.createToken(userPk, 1000L * 60 * 60);
+        String refreshToken = jwtUtil.createToken(userPk, OAuthProvider.SELF,1000L * 60 * 60);
 
         Account account = new Account();
         ReflectionTestUtils.setField(account, "id", userPk);
@@ -162,5 +164,34 @@ class AccountServiceTest {
         assertThat(tokenResponse.getRefreshToken()).isEqualTo(refreshToken);
     }
 
+    @Test
+    void isEmailDuplicated_withAlreadyExistEmail_returnsTrue() {
+        //given
+        String email = "test@test.com";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(new Account()));
 
+        //when
+        boolean result = accountService.isEmailExists(email);
+
+        //then
+        assertThat(result).isTrue();
+
+    }
+
+    @Test
+    void isEmailDuplicated_withNonExistEmail_returnsFalse() {
+        //given
+        String email = "test@test.com";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        boolean result = accountService.isEmailExists(email);
+
+        //then
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void emailExistsVerification() {
+    }
 }

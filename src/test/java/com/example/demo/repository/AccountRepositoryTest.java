@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.domain.Account;
+import com.example.demo.dto.oauth.OAuthProvider;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ class AccountRepositoryTest {
     }
 
     private static Account getSignUpMember(String email) {
-        return Account.createSignUpMember("user", email, "0000");
+        return Account.createSignUpMember("user", email, "0000", OAuthProvider.SELF);
     }
 
     @Test

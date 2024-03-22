@@ -1,5 +1,6 @@
 package com.example.demo.infrastructure.jwt;
 
+import com.example.demo.dto.oauth.OAuthProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -25,7 +26,7 @@ public class JwtUtil {
     }
 
 
-    public String createToken(long userPk, long validTime) {
+    public String createToken(long userPk, OAuthProvider oAuthProvider, long validTime) {
         Date now = new Date();
 
         String subject = String.valueOf(userPk);
@@ -34,6 +35,7 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + validTime))
+                .claim("oAuthProvider", oAuthProvider)
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
 
