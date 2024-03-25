@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.TokenResponse;
+import com.example.demo.dto.TokenPair;
 import com.example.demo.dto.oauth.KakaoTokens;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.service.oauth.KakaoApiClient;
@@ -25,7 +25,7 @@ public class OAuthAccountController {
         return kakaoApiClient.requestAccessToken(authorizationcode);
     }
     @PostMapping("/kakao/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody KakaoTokens kakaoTokens) {
+    public ResponseEntity<TokenPair> login(@RequestBody KakaoTokens kakaoTokens) {
         return ResponseEntity.ok().body(oAuthAccountService.login(kakaoTokens.getAccessToken(), OAuthProvider.KAKAO));
     }
 }

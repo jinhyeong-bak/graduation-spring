@@ -38,6 +38,13 @@ public class Account implements UserDetails {
         return account;
     }
 
+    public static Account createOAuthSignUpMember(String email, OAuthProvider oAuthProvider) {
+        Account account = new Account();
+        account.email = email;
+        account.oAuthProvider = oAuthProvider;
+        return account;
+    }
+
     public static Account createLoginAccount(Long pk) {
         Account account = new Account();
         account.id = pk;

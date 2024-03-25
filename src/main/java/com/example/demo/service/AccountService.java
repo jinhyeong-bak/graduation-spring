@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.OAuthAccount;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.JoinRequest;
 import com.example.demo.domain.Account;
@@ -15,7 +14,6 @@ import com.example.demo.dto.TokenPair;
 import com.example.demo.infrastructure.jwt.RedisToken;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.RedisTokenRepository;
-import com.example.demo.repository.OAuthAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +38,6 @@ import java.util.Random;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final RedisTokenRepository redisTokenRepository;
-    private final OAuthAccountRepository oAuthAccountRepository;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder pe;
@@ -75,9 +72,12 @@ public class AccountService {
 
         // 연속 시도는 24시간 안에만 유효
         if(Duration.between(account.getLoginLastTryTime(), LocalDateTime.now()).toMillis() > 1000L * 60 * 60 * 24) {
-            account.renewLoginLastTryTime();
+            log.info("마지막 로그인 시도로부터 24시간이 지나서 시간 및 횟수 초기화 email: {}, 마지막 시간: {}, 현재 시간: {}", email, account.getLoginLastTryTime(), LocalDateTime.now());
             account.initWrongPasswordCount();
         }
+
+        // 마지막 로그인 시도 시간 갱신
+        account.renewLoginLastTryTime();
 
         // 아이디가 잠긴 상태인지 확인
         long differenceInMillis = Duration.between(LocalDateTime.now(), accountUnlockTime).toMillis();
@@ -127,12 +127,9 @@ public class AccountService {
         log.info("회원가입 서비스 함수 호출 name={}, email={}, password={}", name, email, encodedPassword);
 
         Optional<Account> foundByEmail = accountRepository.findByEmail(email);
-        Optional<OAuthAccount> optionalAccount = oAuthAccountRepository.findByEmail(email);
-        if(foundByEmail.isPresent() || optionalAccount.isPresent()){
-            OAuthProvider oAuthProvider = OAuthProvider.SELF;
-            if(optionalAccount.isPresent()) {
-                oAuthProvider = optionalAccount.get().getOAuthProvider();
-            }
+        if(foundByEmail.isPresent()){
+            Account account = foundByEmail.get();
+            OAuthProvider oAuthProvider = account.getOAuthProvider();
             log.error("이미 존재하는 이메일이 회원 가입 요청으로 넘어왔다. email: {}, OAuthProvider: {}", email, oAuthProvider);
             throw new EmailAlreadyExistException(email,  oAuthProvider);
         }
@@ -155,7 +152,7 @@ public class AccountService {
         try {
             String oAuthProviderStr = jwtUtil.getSpecifiedClaim(refreshToken, "oAuthProvider", String.class);
             OAuthProvider oAuthProvider = Enum.valueOf(OAuthProvider.class, oAuthProviderStr);
-            long userPk = 0L;
+            long userPk = jwtUtil.getUserPk(refreshToken);
 
             jwtUtil.validate(refreshToken);
 
@@ -163,24 +160,17 @@ public class AccountService {
                 throw new TokenBlackListedException("버려진 refreshToken으로부터 refresh요청이 왔습니다. token: " + refreshToken);
             }
 
-            if(oAuthProvider == OAuthProvider.SELF) {
-                Account account = accountRepository.findByEmail(email).orElseThrow(
-                        () -> new UsernameNotFoundException("User not found with email: " + email)
-                );
-                userPk = account.getId();
-            }
-            else {
-                OAuthAccount oAuthAccount = oAuthAccountRepository.findByEmail(email).orElseThrow(
-                        () -> new UsernameNotFoundException("User not found with email: " + email)
-                );
-                userPk = oAuthAccount.getId();
-            }
-
-
-            jwtUtil.validate(refreshToken);
+            Account account = accountRepository.findByEmail(email).orElseThrow(
+                    () -> new UsernameNotFoundException("User not found with email: " + email)
+            );
 
             String accessToken = jwtUtil.createToken(userPk, oAuthProvider, accessValidTime);
+
+            redisTokenRepository.deleteById(refreshToken);
             refreshToken = jwtUtil.createToken(userPk, oAuthProvider, refreshValidTime);
+            RedisToken refreshTokenInRedis = RedisToken.createTokenInRedis(refreshToken, refreshValidTime);
+            redisTokenRepository.save(refreshTokenInRedis);
+
             log.info("refresh 요청 처리 성공 email:{}, refreshToken: {}", email, refreshToken);
 
 
