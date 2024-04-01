@@ -8,6 +8,8 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,10 +62,10 @@ public class SwaggerConfig {
     public OpenAPI baseOpenApi() {
 
         ApiResponse jwtEx = createErrorApiResponse(new ErrorExample("InvalidSignature", signatureError, signatureMessage),
-                                                new ErrorExample("ExpiredJwt", expiredJwtError, expiredJwtMessage));
+                new ErrorExample("ExpiredJwt", expiredJwtError, expiredJwtMessage));
 
         ApiResponse loginEx = createErrorApiResponse(new ErrorExample("EmailNotFound", userNameNotFoundError, userNameNotFoundMessage),
-                                                new ErrorExample("IncorrectPassword",badCredentialsError, badCredentialsMessage));
+                new ErrorExample("IncorrectPassword",badCredentialsError, badCredentialsMessage));
 
         ApiResponse refreshEx = createErrorApiResponse(new ErrorExample("TokenRefreshFail", tokenRefreshFailError, tokenRefreshFailMessage));
 
@@ -75,8 +77,8 @@ public class SwaggerConfig {
         components.addResponses("refreshEx", refreshEx);
 
         return new OpenAPI()
-                        .components(components)
-                        .info(new Info()
+                .components(components)
+                .info(new Info()
                         .title("2024학년도 1학기 가톨릭대 종합설계 API Docs")
                         .version("1.0.0"));
     }

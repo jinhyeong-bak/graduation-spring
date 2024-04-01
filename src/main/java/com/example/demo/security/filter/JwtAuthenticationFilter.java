@@ -46,6 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String token = header.split(" ")[1].trim();
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
