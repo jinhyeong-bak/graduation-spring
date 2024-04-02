@@ -3,23 +3,37 @@ package com.example.demo.domain;
 import com.example.demo.dto.oauth.OAuthProvider;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
+@ToString
 @Entity
 public class Account implements UserDetails {
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_id")
     private Long id;
+
     private String name;
+
     private String email;
+
     private String password;
+
     private Integer wrongPasswordCount;
+
     private LocalDateTime loginLastTryTime;
+
     private LocalDateTime loginLockTime;
+
     @Enumerated(EnumType.STRING)
     private OAuthProvider oAuthProvider;
 
@@ -84,6 +98,7 @@ public class Account implements UserDetails {
     public Integer getWrongPasswordCount() {
         return wrongPasswordCount;
     }
+
     public void incWrongPasswordCount() {
         wrongPasswordCount++;
     }
@@ -103,6 +118,7 @@ public class Account implements UserDetails {
     public LocalDateTime getLoginLastTryTime() {
         return loginLastTryTime;
     }
+
     public void renewalPassword(String password) {
         this.password = password;
     }

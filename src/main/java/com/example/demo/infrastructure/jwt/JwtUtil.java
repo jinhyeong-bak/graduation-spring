@@ -5,9 +5,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
@@ -15,6 +18,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class JwtUtil {
     //private final SecretKey key = Jwts.SIG.HS256.key().build();
 
@@ -62,6 +66,7 @@ public class JwtUtil {
     // 토큰에서 유저정보 얻기
     public long getUserPk(String token) {
         String userPk = getSpecifiedClaim(token, Claims.SUBJECT, String.class);
+
         return Long.valueOf(userPk);
     }
 
@@ -94,5 +99,17 @@ public class JwtUtil {
     public static String createKey() {
         return Base64.getEncoder().encodeToString(Jwts.SIG.HS256.key().build().getEncoded());
     }
+
+    public String getAccessTokenFromHeader(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization");
+
+        if(StringUtils.hasText(accessToken) && accessToken.startsWith("Bearer ")) {
+            String resolvedToken = accessToken.substring(7);
+
+            return resolvedToken;
+        }
+        return accessToken;
+    }
+
 
 }

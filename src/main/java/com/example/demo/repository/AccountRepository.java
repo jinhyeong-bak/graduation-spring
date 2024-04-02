@@ -36,4 +36,18 @@ public class AccountRepository {
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
+    public Optional<Account> findById(long accountId) {
+
+        String query = "select m from Account m where m.id = :accountId";
+
+        List<Account> result = em.createQuery(query, Account.class)
+                .setParameter("accountId", accountId)
+                .getResultList();
+
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
+
+
+
+
 }
