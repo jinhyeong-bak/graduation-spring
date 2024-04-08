@@ -20,6 +20,9 @@ public class View {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    private Account account;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private Diary diary;
 
 }
