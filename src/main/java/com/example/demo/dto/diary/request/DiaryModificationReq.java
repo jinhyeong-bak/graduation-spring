@@ -15,6 +15,8 @@ public class DiaryModificationReq {
 
     private Boolean commentEnabled;
 
+    private Boolean isPublic;
+
     private Point geography;
 
     private Emotion emotion;
