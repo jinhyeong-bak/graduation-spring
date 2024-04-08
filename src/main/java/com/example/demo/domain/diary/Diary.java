@@ -34,6 +34,8 @@ public class Diary {
 
     private Boolean commentEnabled;
 
+    private Boolean isPublic;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

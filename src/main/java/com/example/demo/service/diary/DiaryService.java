@@ -47,6 +47,7 @@ public class DiaryService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .commentEnabled(request.getCommentEnabled())
+                .isPublic(request.getIsPublic())
                 .geography(location)
                 .emotion(request.getEmotion())
                 .createdAt(LocalDateTime.now())
@@ -89,6 +90,9 @@ public class DiaryService {
             }
             if (request.getCommentEnabled() != null) {
                 diary.setCommentEnabled(request.getCommentEnabled());
+            }
+            if(request.getIsPublic() != null) {
+                diary.setIsPublic(request.getIsPublic());
             }
             if(request.getEmotion() != null) {
                 diary.setEmotion(request.getEmotion());

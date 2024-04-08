@@ -6,6 +6,7 @@ import com.example.demo.dto.diary.request.DiaryModificationReq;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AwsS3Service;
 import com.example.demo.service.diary.DiaryService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -28,24 +30,30 @@ public class DiaryController {
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/diary")
-    public ResponseEntity<String> postDiary(HttpServletRequest request, @RequestBody DiaryCreationReq diaryCreationReq,
+    public ResponseEntity<String> postDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryCreationReq,
                                             @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
         try {
             String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            List<String> imageUrls = new ArrayList<>();
-            diaryImages.forEach(file -> {
-                if(!file.isEmpty()) {
-                    String imageUrl = null;
-                    try {
-                        imageUrl = awsS3Service.uploadImageToS3(file);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    imageUrls.add(imageUrl);
-                }
-            });
+            ObjectMapper objectMapper = new ObjectMapper();
+            DiaryCreationReq creationReq = objectMapper.convertValue(diaryCreationReq.get("diaryCreationReq"), DiaryCreationReq.class);
 
-            return diaryService.createDiary(accessToken, diaryCreationReq, imageUrls);
+            List<String> imageUrls = new ArrayList<>();
+            if (diaryImages != null) {
+                diaryImages.forEach(file -> {
+                    if (!file.isEmpty()) {
+                        String imageUrl = null;
+                        try {
+                            imageUrl = awsS3Service.uploadImageToS3(file);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        imageUrls.add(imageUrl);
+                    }
+                });
+            }
+
+
+            return diaryService.createDiary(accessToken, creationReq, imageUrls);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -54,22 +62,26 @@ public class DiaryController {
 
 
     @PatchMapping("/diary")
-    public ResponseEntity<String> patchDiary(HttpServletRequest request, @RequestBody DiaryModificationReq modificationReq,
+    public ResponseEntity<String> patchDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryModificationReq,
                                              @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
         try {
             String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+            ObjectMapper objectMapper = new ObjectMapper();
+            DiaryModificationReq modificationReq = objectMapper.convertValue(diaryModificationReq.get("modificationReq"), DiaryModificationReq.class);
             diaryService.deleteFile(modificationReq.getDiaryId());
 
             List<String> imageUrls = new ArrayList<>();
-            diaryImages.forEach(file -> {
-                String imageUrl = null;
-                try {
-                    imageUrl = awsS3Service.uploadImageToS3(file);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                imageUrls.add(imageUrl);
-            });
+            if (diaryImages != null) {
+                diaryImages.forEach(file -> {
+                    String imageUrl = null;
+                    try {
+                        imageUrl = awsS3Service.uploadImageToS3(file);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    imageUrls.add(imageUrl);
+                });
+            }
 
             return diaryService.modifyDiary(accessToken, modificationReq, imageUrls);
         } catch (Exception e) {
