@@ -19,9 +19,10 @@ public class ViewController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/view/{diaryId}")
-    public ResponseEntity<String> view(@PathVariable(name = "diaryId") long diaryId) {
+    public ResponseEntity<String> view(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
         try {
-            return viewService.view(diaryId);
+            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+            return viewService.view(accessToken, diaryId);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

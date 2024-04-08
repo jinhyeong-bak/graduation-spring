@@ -37,7 +37,6 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-resources/**",
             "/swagger-ui/**",
-            "/diary/view/**"
     };
 
     @Bean
@@ -51,7 +50,6 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize ->
                 authorize
                         .requestMatchers(whiteList).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/diary/likes/{diaryId}").permitAll()
                         .anyRequest().authenticated()
         );
 

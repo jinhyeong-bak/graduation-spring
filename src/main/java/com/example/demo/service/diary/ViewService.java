@@ -25,12 +25,18 @@ public class ViewService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public ResponseEntity<String> view(long diaryId) {
+    public ResponseEntity<String> view(String accessToken, long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
 
+        long userId = jwtUtil.getUserPk(accessToken);
+
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Not found User"));
+
        View view = View.builder()
+               .account(account)
                .diary(diary)
                .build();
 
