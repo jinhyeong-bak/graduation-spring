@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Point;
 
-import java.awt.geom.Point2D;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,7 +38,7 @@ public class Diary {
 
     private LocalDateTime updatedAt;
 
-    private Point2D.Double geography;
+    private Point geograpy;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

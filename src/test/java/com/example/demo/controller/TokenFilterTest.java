@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.security.filter.JwtAuthenticationFilter;
 import org.junit.jupiter.api.Test;
@@ -52,7 +53,7 @@ class TokenFilterTest {
 
     @Test
     void tokenFilterTest_withValidAccessToken_returnsHttpStatus200() throws Exception {
-        String accessToken = jwtUtil.createToken(1L, 60 * 1000L);
+        String accessToken = jwtUtil.createToken(1L, OAuthProvider.SELF, 60 * 1000L);
 
         mockMvc.perform(
                         MockMvcRequestBuilders
@@ -65,7 +66,7 @@ class TokenFilterTest {
     @Test
     void tokenFilterTest_withInvalidAccessToken_returnsSignatureException() throws Exception {
         JwtUtil jwtUtilUsedDifferentKey = new JwtUtil(JwtUtil.createKey());
-        String accessToken = jwtUtilUsedDifferentKey.createToken(0L, 1000L * 60);
+        String accessToken = jwtUtilUsedDifferentKey.createToken(0L, OAuthProvider.SELF, 1000L * 60);
 
         mockMvc.perform(
                         MockMvcRequestBuilders
@@ -77,7 +78,7 @@ class TokenFilterTest {
 
     @Test
     void tokenFilterTest_withExpiredAccessToken_returnsTokenRefreshFailException() throws Exception {
-        String accessToken = jwtUtil.createToken(0L, 0);
+        String accessToken = jwtUtil.createToken(0L, OAuthProvider.SELF, 0);
 
         mockMvc.perform(
                 MockMvcRequestBuilders
@@ -86,12 +87,4 @@ class TokenFilterTest {
         ).andExpect(status().isUnauthorized());
     }
 
-    @Test
-    void tokenFilterTest_withBlacklistedToken_returnsTokenBlacklistedException() throws Exception {
-        String accessToken = jwtUtil.createToken(0L, 0);
-
-        mockMvc.perform(
-                Mock
-        )
-    }
  }
