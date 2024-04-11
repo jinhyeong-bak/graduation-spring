@@ -72,6 +72,4 @@ public class DiaryReadResponse {
             imgUrls.add(diaryImage.getDiaryImage());
         }
     }
-
-    // 댓글 추가 api
 }

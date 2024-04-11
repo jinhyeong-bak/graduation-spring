@@ -42,6 +42,8 @@ public class DiaryListResponse {
             entry.latitude = geograpy.getY();
 
             entry.emotion = diary.getEmotion();
+
+            diaryListResponse.getDiaryList().add(entry);
         }
 
         diaryListResponse.totalPage = diaryPage.getTotalPages();

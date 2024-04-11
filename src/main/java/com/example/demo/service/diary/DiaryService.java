@@ -171,8 +171,6 @@ public class DiaryService {
         List<DiaryImage> diaryImages = diaryImageRepository.findByDiaryDiaryId(diaryId);
         response.addImgUrls(diaryImages);
 
-        // 댓글 가져오기
-
         return response;
     }
 
