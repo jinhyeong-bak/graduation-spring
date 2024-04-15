@@ -242,14 +242,15 @@ public class AccountService {
 
         String email = newPassword.getEmail();
         String password = newPassword.getPassword();
+        String encodedPassword = encodePassword(password);
 
-        log.info("비밀번호 갱신 메서드 호출 email: {}", email);
+        log.info("비밀번호 갱신 메서드 호출 email: {}, password: {}, encodedPassword: {}", email, password, encodedPassword);
 
         Account account = accountRepository.findByEmail(email).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with email: " + email)
         );
 
-        account.renewalPassword(password);
+        account.renewalPassword(encodedPassword);
     }
 
     private static String generateRandom6Digit(){
