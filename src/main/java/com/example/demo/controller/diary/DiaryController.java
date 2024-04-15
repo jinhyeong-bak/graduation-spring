@@ -2,7 +2,10 @@ package com.example.demo.controller.diary;
 
 
 import com.example.demo.dto.diary.request.DiaryCreationReq;
+import com.example.demo.dto.diary.request.DiaryListRequest;
 import com.example.demo.dto.diary.request.DiaryModificationReq;
+import com.example.demo.dto.diary.response.DiaryListResponse;
+import com.example.demo.dto.diary.response.DiaryReadResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AwsS3Service;
 import com.example.demo.service.diary.DiaryService;
@@ -96,6 +99,28 @@ public class DiaryController {
             String accessToken = jwtUtil.getAccessTokenFromHeader(request);
             return diaryService.deleteDiary(accessToken, diaryId);
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/diary/{diaryId}")
+    public ResponseEntity<DiaryReadResponse> DiaryReadReq(HttpServletRequest request, @PathVariable(name="diaryId") long diaryId) {
+        try {
+            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+             DiaryReadResponse diaryReadResponse = diaryService.readDiary(accessToken, diaryId);
+             return ResponseEntity.ok().body(diaryReadResponse);
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/diary/list")
+    public ResponseEntity<DiaryListResponse> DiaryListReq(HttpServletRequest request, @RequestBody DiaryListRequest diaryListRequest) {
+        try {
+            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+            DiaryListResponse diaryListResponse = diaryService.getDiaryList(accessToken, diaryListRequest);
+            return ResponseEntity.ok().body(diaryListResponse);
+        }catch(Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -1,5 +1,6 @@
 package com.example.demo.infrastructure.jwt;
 
+import com.example.demo.dto.oauth.OAuthProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
@@ -22,7 +23,7 @@ class JwtUtilTest {
 
     @Test
     void getUserPk() {
-        String token = jwtUtil.createToken(1L, 1000L * 60);
+        String token = jwtUtil.createToken(1L,  OAuthProvider.SELF, 1000L * 60);
 
         Long userPk = jwtUtil.getUserPk(token);
 
@@ -32,7 +33,7 @@ class JwtUtilTest {
 
     @Test
     void validate_withValidToken_returnsTrue() {
-        String token = jwtUtil.createToken(1L, 1000L * 60 * 60);
+        String token = jwtUtil.createToken(1L, OAuthProvider.SELF, 1000L * 60 * 60);
 
         boolean result = jwtUtil.validate(token);
 
@@ -42,7 +43,7 @@ class JwtUtilTest {
     @Test
     void validate_withDifferentKey_throwsSignatureException() {
         //given
-        String token = jwtUtil.createToken(1L, 1000L * 60);
+        String token = jwtUtil.createToken(1L, OAuthProvider.SELF, 1000L * 60);
 
         //when
         String differentKey = JwtUtil.createKey();
@@ -57,7 +58,7 @@ class JwtUtilTest {
     @Test
     void validate_withExpiredToken_throwsExpiredJwtException() {
         //given
-        String token = jwtUtil.createToken(1L, 0);
+        String token = jwtUtil.createToken(1L, OAuthProvider.SELF, 0);
 
         //when
         //then

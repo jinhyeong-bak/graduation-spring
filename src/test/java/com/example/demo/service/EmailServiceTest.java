@@ -41,7 +41,7 @@ class EmailServiceTest {
 
         System.out.println(verificationCode);
         // when
-        emailService.sendVerificationCode(mailReceiver, verificationCode.toString());
+        emailService.sendEmail(mailReceiver, "email Test", verificationCode.toString());
 
         // then
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();

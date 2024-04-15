@@ -51,7 +51,7 @@ public class AccountController {
         accountService.logout(tokenPair);
     }
 
-    @ResponseBody
+    @PostMapping("/refresh")
     public ResponseEntity<TokenPair> refresh(@RequestBody RefreshRequest request) {
         TokenPair response =  accountService.refresh(request.getEmail(), request.getRefreshToken());
         log.info("refresh 호출 accessToken: {}, refreshToken: {}", response.getAccessToken(), response.getRefreshToken());
