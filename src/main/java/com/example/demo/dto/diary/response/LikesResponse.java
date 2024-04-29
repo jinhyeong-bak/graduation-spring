@@ -7,8 +7,6 @@ import lombok.Data;
 @Builder
 public class LikesResponse {
 
-    private String msg;
-
     private int likeCount;
 
 }

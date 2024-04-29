@@ -56,7 +56,6 @@ public class ViewService {
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
 
         ViewResponse response = ViewResponse.builder()
-                .msg("조회 수 : ")
                 .viewCount(diary.getViewCount())
                 .build();
 

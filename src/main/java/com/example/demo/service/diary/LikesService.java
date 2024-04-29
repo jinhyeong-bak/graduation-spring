@@ -58,7 +58,6 @@ public class LikesService {
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
 
         LikesResponse response = LikesResponse.builder()
-                .msg("좋아요 수 : ")
                 .likeCount(diary.getLikeCount())
                 .build();
 
