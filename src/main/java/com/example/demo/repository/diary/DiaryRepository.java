@@ -26,4 +26,10 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     @Query(value = "select t from Diary as t where within(t.geograpy, :boundary) = true order by t.createdAt desc")
     Page<Diary> getDiaryListOrderByCreatedAt(@Param("boundary") Geometry boundary, Pageable pageable);
+
+    List<Diary> findAllByAccountOrderByLikeCountDesc(Account account);
+
+    List<Diary> findAllByAccountOrderByViewCountDesc(Account account);
+
 }
+
