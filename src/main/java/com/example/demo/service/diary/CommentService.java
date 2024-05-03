@@ -31,7 +31,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public ResponseEntity<String> createComment(String accessToken, CommentRequest request, long diaryId) {
+    public String createComment(String accessToken, CommentRequest request, long diaryId) {
 
         long userId = jwtUtil.getUserPk(accessToken);
 
@@ -49,12 +49,12 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return ResponseEntity.ok("Success create Comment");
+        return "Success create Comment";
 
     }
 
     @Transactional
-    public ResponseEntity<String> modifyComment(String accessToken, CommentRequest request, long commentId) {
+    public String modifyComment(String accessToken, CommentRequest request, long commentId) {
 
         long userId = jwtUtil.getUserPk(accessToken);
 
@@ -72,11 +72,11 @@ public class CommentService {
         }
         commentRepository.save(comment);
 
-        return ResponseEntity.ok("Success modify Comment");
+        return "Success modify Comment";
     }
 
     @Transactional
-    public ResponseEntity<String> deleteComment(String accessToken, long commentId) {
+    public String deleteComment(String accessToken, long commentId) {
 
         long userId = jwtUtil.getUserPk(accessToken);
 
@@ -92,11 +92,11 @@ public class CommentService {
             commentRepository.deleteById(commentId);
         }
 
-        return ResponseEntity.ok("Success delete Comment");
+        return "Success delete Comment";
 
     }
 
-    public ResponseEntity<List<CommentResponse>> getComments(long diaryId) {
+    public List<CommentResponse> getComments(long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -107,7 +107,7 @@ public class CommentService {
                 .map(comment -> new CommentResponse(comment.getCommentId(), comment.getContent(), comment.getCreatedAt(), comment.getUpdatedAt()))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(commentResponses);
+        return commentResponses;
 
     }
 

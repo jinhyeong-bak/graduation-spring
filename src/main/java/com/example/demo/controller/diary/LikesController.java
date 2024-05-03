@@ -1,6 +1,7 @@
 package com.example.demo.controller.diary;
 
 import com.example.demo.dto.diary.response.LikesResponse;
+import com.example.demo.exception.api.ApiResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.diary.LikesService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,35 +19,20 @@ public class LikesController {
     private final LikesService likesService;
 
     @PostMapping("/likes/{diaryId}")
-    public ResponseEntity<String> postLike(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return likesService.postLike(accessToken, diaryId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<String> postLike(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(likesService.postLike(accessToken, diaryId));
     }
 
     @GetMapping("/likes/{diaryId}")
-    public ResponseEntity<LikesResponse> getLikes(@PathVariable(name = "diaryId") long diaryId) {
-        try {
-            return likesService.getLikes(diaryId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<LikesResponse> getLikes(@PathVariable(name = "diaryId") long diaryId) {
+        return new ApiResponse<>(likesService.getLikes(diaryId));
     }
 
     @DeleteMapping("/likes/{diaryId}")
-    public ResponseEntity<String> deleteLike(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return likesService.unLike(accessToken, diaryId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<String> deleteLike(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(likesService.unLike(accessToken, diaryId));
     }
 
 }

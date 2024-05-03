@@ -48,7 +48,7 @@ public class DiaryService {
     private final int pageSize = 30;
 
     @Transactional
-    public ResponseEntity<String> createDiary(String accessToken, DiaryCreationReq request, List<String> diaryImages) {
+    public String createDiary(String accessToken, DiaryCreationReq request, List<String> diaryImages) {
 
         long userId = jwtUtil.getUserPk(accessToken);
 
@@ -80,12 +80,12 @@ public class DiaryService {
             diaryImageRepository.save(diaryImage);
         }
 
-        return ResponseEntity.ok("Creation Success");
+        return "Creation Success";
 
     }
 
     @Transactional
-    public ResponseEntity<String> modifyDiary(String accessToken, DiaryModificationReq request, List<String> diaryImages) {
+    public String modifyDiary(String accessToken, DiaryModificationReq request, List<String> diaryImages) {
 
         Diary diary = diaryRepository.findById(request.getDiaryId())
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -125,12 +125,12 @@ public class DiaryService {
             }
         }
 
-        return ResponseEntity.ok("Modification Success");
+        return "Modification Success";
 
     }
 
     @Transactional
-    public ResponseEntity<String> deleteDiary(String accessToken, long diaryId) {
+    public String deleteDiary(String accessToken, long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -152,7 +152,7 @@ public class DiaryService {
             deleteFile(diaryId);
         }
 
-        return ResponseEntity.ok("Deletion Success");
+        return "Deletion Success";
 
     }
 
