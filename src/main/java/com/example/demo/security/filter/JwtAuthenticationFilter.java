@@ -46,9 +46,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String token = header.split(" ")[1].trim();
+        log.info("token: {}", token);
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            log.info("authentication: {}", authentication);
 
             if(authentication == null) {
                 jwtUtil.validate(token);       // 검증 실패 시 예외 발생

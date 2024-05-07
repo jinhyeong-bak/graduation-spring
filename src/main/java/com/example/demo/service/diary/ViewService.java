@@ -25,7 +25,7 @@ public class ViewService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public ResponseEntity<String> view(String accessToken, long diaryId) {
+    public String view(String accessToken, long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -45,22 +45,21 @@ public class ViewService {
        diary.setViewCount(diary.getViewCount() + 1);
        diaryRepository.save(diary);
 
-        return ResponseEntity.ok("View successful");
+        return "View successful";
 
     }
 
     @Transactional
-    public ResponseEntity<ViewResponse> getViews(long diaryId) {
+    public ViewResponse getViews(long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
 
         ViewResponse response = ViewResponse.builder()
-                .msg("조회 수 : ")
                 .viewCount(diary.getViewCount())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return response;
 
     }
 

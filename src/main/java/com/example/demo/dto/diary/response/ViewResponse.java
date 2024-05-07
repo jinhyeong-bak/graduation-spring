@@ -7,8 +7,6 @@ import lombok.Data;
 @Builder
 public class ViewResponse {
 
-    private String msg;
-
     private int viewCount;
 
 

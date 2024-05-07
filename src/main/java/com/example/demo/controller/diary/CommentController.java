@@ -2,6 +2,7 @@ package com.example.demo.controller.diary;
 
 import com.example.demo.dto.diary.request.CommentRequest;
 import com.example.demo.dto.diary.response.CommentResponse;
+import com.example.demo.exception.api.ApiResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.diary.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,48 +23,29 @@ public class CommentController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/comment/{diaryId}")
-    public ResponseEntity<String> postLike(HttpServletRequest request, @RequestBody CommentRequest commentRequest,
-                                           @PathVariable(name = "diaryId") long diaryId) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return commentService.createComment(accessToken, commentRequest, diaryId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<String> postLike(HttpServletRequest request, @RequestBody CommentRequest commentRequest,
+                                        @PathVariable(name = "diaryId") long diaryId) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(commentService.createComment(accessToken, commentRequest, diaryId));
+
     }
 
     @PatchMapping("/comment/{commentId}")
-    public ResponseEntity<String> updateComment(HttpServletRequest request, @RequestBody CommentRequest commentRequest,
+    public ApiResponse<String> updateComment(HttpServletRequest request, @RequestBody CommentRequest commentRequest,
                                                 @PathVariable(name = "commentId") long commentId) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return commentService.modifyComment(accessToken, commentRequest, commentId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(commentService.modifyComment(accessToken, commentRequest, commentId));
     }
 
     @DeleteMapping("/comment/{commentId}")
-    public ResponseEntity<String> deleteComment(HttpServletRequest request, @PathVariable(name = "commentId") long commentId) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return commentService.deleteComment(accessToken, commentId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<String> deleteComment(HttpServletRequest request, @PathVariable(name = "commentId") long commentId) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(commentService.deleteComment(accessToken, commentId));
     }
 
     @GetMapping("/comment/{diaryId}")
-    public ResponseEntity<List<CommentResponse>> getComments(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
-        try {
-            return commentService.getComments(diaryId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<List<CommentResponse>> getComments(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId) {
+        return new ApiResponse<>(commentService.getComments(diaryId));
     }
 
 }

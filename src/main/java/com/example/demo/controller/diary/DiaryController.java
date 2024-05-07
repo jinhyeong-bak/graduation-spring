@@ -6,6 +6,7 @@ import com.example.demo.dto.diary.request.DiaryListRequest;
 import com.example.demo.dto.diary.request.DiaryModificationReq;
 import com.example.demo.dto.diary.response.DiaryListResponse;
 import com.example.demo.dto.diary.response.DiaryReadResponse;
+import com.example.demo.exception.api.ApiResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AwsS3Service;
 import com.example.demo.service.diary.DiaryService;
@@ -33,74 +34,58 @@ public class DiaryController {
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/diary")
-    public ResponseEntity<String> postDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryCreationReq,
-                                            @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            ObjectMapper objectMapper = new ObjectMapper();
-            DiaryCreationReq creationReq = objectMapper.convertValue(diaryCreationReq.get("diaryCreationReq"), DiaryCreationReq.class);
+    public ApiResponse<String> postDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryCreationReq,
+                                         @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DiaryCreationReq creationReq = objectMapper.convertValue(diaryCreationReq.get("diaryCreationReq"), DiaryCreationReq.class);
 
-            List<String> imageUrls = new ArrayList<>();
-            if (diaryImages != null) {
-                diaryImages.forEach(file -> {
-                    if (!file.isEmpty()) {
-                        String imageUrl = null;
-                        try {
-                            imageUrl = awsS3Service.uploadImageToS3(file);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        imageUrls.add(imageUrl);
+        List<String> imageUrls = new ArrayList<>();
+        if (diaryImages != null) {
+            diaryImages.forEach(file -> {
+                if (!file.isEmpty()) {
+                    String imageUrl = null;
+                    try {
+                        imageUrl = awsS3Service.uploadImageToS3(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                });
-            }
-
-
-            return diaryService.createDiary(accessToken, creationReq, imageUrls);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    imageUrls.add(imageUrl);
+                }
+            });
         }
+        return new ApiResponse<>(diaryService.createDiary(accessToken, creationReq, imageUrls));
     }
 
 
     @PatchMapping("/diary")
-    public ResponseEntity<String> patchDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryModificationReq,
+    public ApiResponse<String> patchDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryModificationReq,
                                              @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            ObjectMapper objectMapper = new ObjectMapper();
-            DiaryModificationReq modificationReq = objectMapper.convertValue(diaryModificationReq.get("modificationReq"), DiaryModificationReq.class);
-            diaryService.deleteFile(modificationReq.getDiaryId());
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DiaryModificationReq modificationReq = objectMapper.convertValue(diaryModificationReq.get("modificationReq"), DiaryModificationReq.class);
+        //diaryService.deleteFile(modificationReq.getDiaryId());
 
-            List<String> imageUrls = new ArrayList<>();
-            if (diaryImages != null) {
-                diaryImages.forEach(file -> {
-                    String imageUrl = null;
-                    try {
-                        imageUrl = awsS3Service.uploadImageToS3(file);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                    imageUrls.add(imageUrl);
-                });
-            }
-
-            return diaryService.modifyDiary(accessToken, modificationReq, imageUrls);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        List<String> imageUrls = new ArrayList<>();
+        if (diaryImages != null) {
+            diaryImages.forEach(file -> {
+                String imageUrl = null;
+                try {
+                    imageUrl = awsS3Service.uploadImageToS3(file);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                imageUrls.add(imageUrl);
+            });
         }
+
+        return new ApiResponse<>(diaryService.modifyDiary(accessToken, modificationReq, imageUrls));
     }
 
     @DeleteMapping("/diary/{diaryId}")
-    public ResponseEntity<String> deleteDiary(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId){
-        try {
-            String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-            return diaryService.deleteDiary(accessToken, diaryId);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ApiResponse<String> deleteDiary(HttpServletRequest request, @PathVariable(name = "diaryId") long diaryId){
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(diaryService.deleteDiary(accessToken, diaryId));
     }
 
     @GetMapping("/diary/{diaryId}")

@@ -23,7 +23,7 @@ public class LikesService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public ResponseEntity<String> postLike(String accessToken, long diaryId) {
+    public String postLike(String accessToken, long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -47,27 +47,26 @@ public class LikesService {
             diaryRepository.save(diary);
         }
 
-        return ResponseEntity.ok("Like successful");
+        return "Like successful";
 
     }
 
     @Transactional
-    public ResponseEntity<LikesResponse> getLikes(long diaryId) {
+    public LikesResponse getLikes(long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
 
         LikesResponse response = LikesResponse.builder()
-                .msg("좋아요 수 : ")
                 .likeCount(diary.getLikeCount())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return response;
 
     }
 
     @Transactional
-    public ResponseEntity<String> unLike(String accessToken, long diaryId) {
+    public String unLike(String accessToken, long diaryId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -88,7 +87,7 @@ public class LikesService {
             diaryRepository.save(diary);
         }
 
-        return ResponseEntity.ok("Unlike Successful");
+        return "Unlike Successful";
 
     }
 
