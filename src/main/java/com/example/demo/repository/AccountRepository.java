@@ -48,6 +48,16 @@ public class AccountRepository {
     }
 
 
+    public boolean existsByEmail(String email) {
 
+        String query = "select count(m) from Account m where m.email = :email";
+
+        Long count = em.createQuery(query, Long.class)
+                .setParameter("email", email)
+                .getSingleResult();
+
+        return count > 0;
+
+    }
 
 }
