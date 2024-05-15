@@ -37,8 +37,8 @@ public class DiaryListResponse {
                 entry.isCurrentUserDiary = true;
             }
 
-            Point geograpy = diary.getGeograpy();
-            entry.longitude = geograpy.getY();
+            Point geograpy = diary.getGeography();
+            entry.longitude = geograpy.getX();
             entry.latitude = geograpy.getY();
 
             entry.emotion = diary.getEmotion();

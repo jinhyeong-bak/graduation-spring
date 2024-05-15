@@ -7,6 +7,7 @@ import com.example.demo.dto.statistics.StatisticsResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.diary.DiaryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class StatisticsService {
     private final AccountRepository accountRepository;
     private final JwtUtil jwtUtil;
 
+    @Transactional
     public List<StatisticsResponse> countDiaries(String accessToken, CountDiariesRequest request) {
 
         long userId = jwtUtil.getUserPk(accessToken);
@@ -43,6 +45,7 @@ public class StatisticsService {
 
     }
 
+    @Transactional
     public StatisticsResponse getMostLikedDiary(String accessToken) {
 
         long userId = jwtUtil.getUserPk(accessToken);
@@ -62,6 +65,7 @@ public class StatisticsService {
 
     }
 
+    @Transactional
     public StatisticsResponse getMostViewedDiary(String accessToken) {
 
         long userId = jwtUtil.getUserPk(accessToken);

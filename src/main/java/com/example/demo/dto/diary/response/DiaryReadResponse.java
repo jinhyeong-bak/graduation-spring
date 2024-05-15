@@ -59,8 +59,8 @@ public class DiaryReadResponse {
                 .commentEnabled(diary.getCommentEnabled())
                 .createdAt(diary.getCreatedAt())
                 .updatedAt(diary.getUpdatedAt())
-                .longitude(diary.getGeograpy().getX())
-                .latitude(diary.getGeograpy().getY())
+                .longitude(diary.getGeography().getX())
+                .latitude(diary.getGeography().getY())
                 .emotion(diary.getEmotion())
                 .isCurrentUserDiary(isCurrentUserDiary)
                 .build();
