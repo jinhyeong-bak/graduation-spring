@@ -40,11 +40,12 @@ public class Diary {
 
     private LocalDateTime updatedAt;
 
-    private Point geograpy;
+    private Point geography;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Emotion emotion;
+
 
     public void updateDiary(String title, String content, Boolean commentEnabled, Emotion emotion) {
         this.title = title;

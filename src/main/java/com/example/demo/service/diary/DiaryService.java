@@ -64,7 +64,7 @@ public class DiaryService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .commentEnabled(request.getCommentEnabled())
-                .geograpy(location)
+                .geography(location)
                 .isPublic(request.getIsPublic())
                 .emotion(request.getEmotion())
                 .createdAt(LocalDateTime.now())
