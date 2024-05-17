@@ -17,6 +17,7 @@ public class DiaryListResponse {
     private int totalPage;
     @Data
     private static class DiaryListEntry {
+        private long diaryId;
         private Double longitude;
         private Double latitude;
         private Emotion emotion;
@@ -37,9 +38,11 @@ public class DiaryListResponse {
                 entry.isCurrentUserDiary = true;
             }
 
-            Point geograpy = diary.getGeography();
-            entry.longitude = geograpy.getX();
-            entry.latitude = geograpy.getY();
+            entry.diaryId = diary.getDiaryId();
+
+            Point geography = diary.getGeography();
+            entry.longitude = geography.getX();
+            entry.latitude = geography.getY();
 
             entry.emotion = diary.getEmotion();
 

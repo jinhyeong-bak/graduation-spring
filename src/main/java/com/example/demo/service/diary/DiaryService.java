@@ -181,7 +181,7 @@ public class DiaryService {
         Geometry boundary = createBoundary(diaryListRequest.getLongitudeTopLeft(), diaryListRequest.getLatitudeTopLeft(),
                 diaryListRequest.getLongitudeBottomRight(), diaryListRequest.getLatitudeBottomRight());
 
-        Pageable pageable = PageRequest.of(diaryListRequest.getCurPage() + 1, pageSize);
+        Pageable pageable = PageRequest.of(diaryListRequest.getReqPage(), pageSize);
         Page<Diary> diaryPage = null;
 
         switch (diaryListRequest.getOption()) {

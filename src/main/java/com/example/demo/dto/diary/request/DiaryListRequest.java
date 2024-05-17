@@ -9,6 +9,6 @@ public class DiaryListRequest {
     private Double longitudeBottomRight;
     private Double latitudeBottomRight;
     private DiaryListOption option;
-    private int curPage;
+    private int reqPage;
 }
 
