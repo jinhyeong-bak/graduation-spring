@@ -20,9 +20,9 @@ public class StatisticsController {
     private final JwtUtil jwtUtil;
 
     @GetMapping("/diary-count")
-    public ApiResponse<List<StatisticsResponse>> countDiaries(HttpServletRequest request, @RequestBody CountDiariesRequest countRequest) {
+    public ApiResponse<List<StatisticsResponse>> countDiaries(HttpServletRequest request, @RequestParam int year, @RequestParam int month) {
         String accessToken = jwtUtil.getAccessTokenFromHeader(request);
-        return new ApiResponse<>(service.countDiaries(accessToken, countRequest));
+        return new ApiResponse<>(service.countDiaries(accessToken, year, month));
     }
 
     @GetMapping("/diary-most-like-count")

@@ -24,14 +24,14 @@ public class StatisticsService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public List<StatisticsResponse> countDiaries(String accessToken, CountDiariesRequest request) {
+    public List<StatisticsResponse> countDiaries(String accessToken, int year, int month) {
 
         long userId = jwtUtil.getUserPk(accessToken);
 
         Account account = accountRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Not found User"));
 
-        LocalDateTime startDate = LocalDateTime.of(request.getYear(), request.getMonth(), 1, 0, 0, 0); // 해당 월의 첫 번째 날의 자정(00:00:00)
+        LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0, 0); // 해당 월의 첫 번째 날의 자정(00:00:00)
         LocalDateTime endDate = startDate.withDayOfMonth(startDate.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59); // 해당 월의 마지막 날의 23:59:59
 
         List<Diary> diaries = diaryRepository.findByAccountAndCreatedAtBetween(account, startDate, endDate);
