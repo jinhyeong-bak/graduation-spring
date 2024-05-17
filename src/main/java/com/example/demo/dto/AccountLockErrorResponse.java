@@ -5,9 +5,11 @@ import lombok.Setter;
 
 @Getter @Setter
 public class AccountLockErrorResponse extends ErrorResultResponse {
-    private long lockTimeRemainingMillis;
     public AccountLockErrorResponse(String error, String error_description, long lockTimeRemainingMillis) {
-        super(error, error_description);
-        this.lockTimeRemainingMillis = lockTimeRemainingMillis;
+        super(error, error_description + ":" + lockTimeRemainingMillis);
+    }
+
+    public AccountLockErrorResponse(String error, long lockTimeRemainingMillis) {
+        super(error, Long.toString(lockTimeRemainingMillis));
     }
 }

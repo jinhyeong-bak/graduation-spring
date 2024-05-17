@@ -128,7 +128,7 @@ public class GlobalExceptionController {
 
         String errorMsg = "비밀번호가 5회 이상 틀려서 계정이 5분간 잠긴 상태입니다.";
 
-        return ResponseEntity.badRequest().body(new AccountLockErrorResponse("AccountLocked", errorMsg, ex.getLockTimeRemainingMillis()));
+        return ResponseEntity.badRequest().body(new AccountLockErrorResponse("AccountLocked", ex.getLockTimeRemainingMillis()));
     }
 
 
