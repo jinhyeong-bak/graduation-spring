@@ -49,34 +49,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("token: {}", token);
 
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            log.info("authentication: {}", authentication);
+            jwtUtil.validate(token);       // 검증 실패 시 예외 발생
 
-            if(authentication == null) {
-                jwtUtil.validate(token);       // 검증 실패 시 예외 발생
-
-                if(redisTokenRepository.findById(token).isPresent()) {
-                    throw new TokenBlackListedException("black list에 올라간 accessToken으로부터 요청이 왔습니다. token: " + token);
-                }
-
-                final Long userPk = jwtUtil.getUserPk(token);
-                UserDetails userDetails = Account.createLoginAccount(userPk);
-
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-
+            if(redisTokenRepository.findById(token).isPresent()) {
+                throw new TokenBlackListedException("black list에 올라간 accessToken으로부터 요청이 왔습니다. token: " + token);
             }
+
+            final Long userPk = jwtUtil.getUserPk(token);
+            UserDetails userDetails = Account.createLoginAccount(userPk);
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
             chain.doFilter(request, response);
         } catch (Exception ex) {
-            log.info("jwt validate exception 발생");
+            log.info("jwt validate exception 발생", ex);
             handlerExceptionResolver.resolveException(request, response, null, ex);
         }
 

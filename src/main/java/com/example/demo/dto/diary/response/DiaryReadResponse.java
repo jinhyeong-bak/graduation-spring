@@ -5,6 +5,7 @@ import com.example.demo.domain.Account;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.domain.diary.DiaryImage;
 import com.example.demo.domain.diary.Emotion;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -27,8 +28,10 @@ public class DiaryReadResponse {
 
     private Boolean commentEnabled;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updatedAt;
 
     private Double longitude;
