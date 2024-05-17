@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class Diary {
 
     private Boolean isPublic;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
