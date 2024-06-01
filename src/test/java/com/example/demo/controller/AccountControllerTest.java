@@ -1,29 +1,20 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.dto.TokenPair;
+import com.example.demo.controller.account.AccountController;
+import com.example.demo.dto.account.response.TokenPair;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
-import com.example.demo.dto.JoinRequest;
-import org.junit.jupiter.api.BeforeEach;
+import com.example.demo.dto.account.request.JoinRequest;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.mockito.Mockito.when;

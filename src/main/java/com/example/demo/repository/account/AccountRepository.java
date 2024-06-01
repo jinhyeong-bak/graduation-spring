@@ -1,6 +1,6 @@
-package com.example.demo.repository;
+package com.example.demo.repository.account;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;

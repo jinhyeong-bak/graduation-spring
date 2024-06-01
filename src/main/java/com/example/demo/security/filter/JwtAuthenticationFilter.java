@@ -1,10 +1,9 @@
 package com.example.demo.security.filter;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.exception.TokenBlackListedException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.infrastructure.jwt.RedisToken;
-import com.example.demo.repository.RedisTokenRepository;
+import com.example.demo.repository.account.RedisTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;

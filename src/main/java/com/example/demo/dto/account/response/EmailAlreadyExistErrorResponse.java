@@ -1,11 +1,10 @@
-package com.example.demo.dto;
+package com.example.demo.dto.account.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.example.demo.dto.oauth.OAuthProvider;
 import lombok.Getter;
 
 @Getter
-public class EmailAlreadyExistErrorResponse extends ErrorResultResponse{
+public class EmailAlreadyExistErrorResponse extends ErrorResultResponse {
 
     private OAuthProvider oAuthProvider;
     public EmailAlreadyExistErrorResponse(String error, String error_description, OAuthProvider oAuthProvider) {

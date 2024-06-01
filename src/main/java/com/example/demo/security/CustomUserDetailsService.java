@@ -1,8 +1,8 @@
 package com.example.demo.security;
 
 
-import com.example.demo.domain.Account;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.domain.account.Account;
+import com.example.demo.repository.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;

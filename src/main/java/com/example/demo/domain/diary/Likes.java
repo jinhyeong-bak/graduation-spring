@@ -1,7 +1,6 @@
 package com.example.demo.domain.diary;
 
-import com.example.demo.domain.Account;
-import com.example.demo.domain.diary.Diary;
+import com.example.demo.domain.account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

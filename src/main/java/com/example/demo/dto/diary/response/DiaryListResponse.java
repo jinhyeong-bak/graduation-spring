@@ -1,6 +1,6 @@
 package com.example.demo.dto.diary.response;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.domain.diary.Emotion;
 import lombok.Data;

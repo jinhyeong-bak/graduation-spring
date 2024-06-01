@@ -1,6 +1,6 @@
 package com.example.demo.repository.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Diary;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.data.domain.Page;

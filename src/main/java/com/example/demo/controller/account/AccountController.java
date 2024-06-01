@@ -1,7 +1,10 @@
-package com.example.demo.controller;
+package com.example.demo.controller.account;
 
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.account.request.*;
+import com.example.demo.dto.account.response.PasswordVerificationEmail;
+import com.example.demo.dto.account.response.TokenPair;
+import com.example.demo.dto.account.response.VerificationCodeDto;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;

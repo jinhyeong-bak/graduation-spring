@@ -1,18 +1,15 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Account;
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.TokenPair;
-import com.example.demo.dto.JoinRequest;
+import com.example.demo.domain.account.Account;
+import com.example.demo.dto.account.request.LoginRequest;
+import com.example.demo.dto.account.response.TokenPair;
+import com.example.demo.dto.account.request.JoinRequest;
 
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.infrastructure.jwt.RedisToken;
-import com.example.demo.repository.AccountRepository;
-import com.example.demo.repository.RedisTokenRepository;
-import io.jsonwebtoken.UnsupportedJwtException;
-import org.assertj.core.api.Assertions;
+import com.example.demo.repository.account.AccountRepository;
+import com.example.demo.repository.account.RedisTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +22,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Date;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;

@@ -1,11 +1,10 @@
 package com.example.demo.service.statistics;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Diary;
-import com.example.demo.dto.statistics.CountDiariesRequest;
 import com.example.demo.dto.statistics.StatisticsResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.DiaryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

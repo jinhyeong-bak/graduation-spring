@@ -1,12 +1,12 @@
 package com.example.demo.service.oauth;
 
-import com.example.demo.domain.Account;
-import com.example.demo.dto.TokenPair;
+import com.example.demo.domain.account.Account;
+import com.example.demo.dto.account.response.TokenPair;
 import com.example.demo.dto.oauth.OAuthInfoResponse;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

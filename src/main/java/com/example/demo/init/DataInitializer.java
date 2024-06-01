@@ -1,12 +1,12 @@
 package com.example.demo.init;
 
 import com.example.demo.config.SecurityConfig;
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Comment;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.domain.diary.Emotion;
 import com.example.demo.dto.oauth.OAuthProvider;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.CommentRepository;
 import com.example.demo.repository.diary.DiaryRepository;
 import com.example.demo.service.diary.DiaryService;
