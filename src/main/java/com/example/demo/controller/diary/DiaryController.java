@@ -34,7 +34,7 @@ public class DiaryController {
     private final AwsS3Service awsS3Service;
 
     @PostMapping("/diary")
-    public ApiResponse<String> postDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryCreationReq,
+    public ApiResponse<String> postDiary(HttpServletRequest request, @RequestPart Map<String, Object> diaryCreationReq,
                                          @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
         String accessToken = jwtUtil.getAccessTokenFromHeader(request);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -59,11 +59,11 @@ public class DiaryController {
 
 
     @PatchMapping("/diary")
-    public ApiResponse<String> patchDiary(HttpServletRequest request, @RequestBody Map<String, Object> diaryModificationReq,
+    public ApiResponse<String> patchDiary(HttpServletRequest request, @RequestPart Map<String, Object> diaryModificationReq,
                                              @RequestPart(value = "image", required = false) List<MultipartFile> diaryImages) {
         String accessToken = jwtUtil.getAccessTokenFromHeader(request);
         ObjectMapper objectMapper = new ObjectMapper();
-        DiaryModificationReq modificationReq = objectMapper.convertValue(diaryModificationReq.get("modificationReq"), DiaryModificationReq.class);
+        DiaryModificationReq modificationReq = objectMapper.convertValue(diaryModificationReq.get("diaryModificationReq"), DiaryModificationReq.class);
         //diaryService.deleteFile(modificationReq.getDiaryId());
 
         List<String> imageUrls = new ArrayList<>();
