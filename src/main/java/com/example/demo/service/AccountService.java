@@ -1,19 +1,19 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.JoinRequest;
-import com.example.demo.domain.Account;
-import com.example.demo.dto.NewPassword;
+import com.example.demo.dto.account.request.LoginRequest;
+import com.example.demo.dto.account.request.JoinRequest;
+import com.example.demo.domain.account.Account;
+import com.example.demo.dto.account.request.NewPassword;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.exception.AccountLockedException;
 import com.example.demo.exception.EmailAlreadyExistException;
 import com.example.demo.exception.TokenBlackListedException;
 import com.example.demo.exception.TokenRefreshFailException;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.dto.TokenPair;
+import com.example.demo.dto.account.response.TokenPair;
 import com.example.demo.infrastructure.jwt.RedisToken;
-import com.example.demo.repository.AccountRepository;
-import com.example.demo.repository.RedisTokenRepository;
+import com.example.demo.repository.account.AccountRepository;
+import com.example.demo.repository.account.RedisTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

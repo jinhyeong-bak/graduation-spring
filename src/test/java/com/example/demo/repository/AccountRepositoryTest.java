@@ -1,7 +1,8 @@
 package com.example.demo.repository;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.dto.oauth.OAuthProvider;
+import com.example.demo.repository.account.AccountRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

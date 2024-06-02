@@ -1,15 +1,12 @@
-package com.example.demo.controller;
+package com.example.demo.controller.account;
 
-import com.example.demo.dto.TokenPair;
+import com.example.demo.dto.account.response.TokenPair;
 import com.example.demo.dto.oauth.KakaoTokens;
 import com.example.demo.dto.oauth.OAuthProvider;
 import com.example.demo.service.oauth.KakaoApiClient;
 import com.example.demo.service.oauth.OAuthAccountService;
-import com.example.demo.service.oauth.RequestOAuthInfoService;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

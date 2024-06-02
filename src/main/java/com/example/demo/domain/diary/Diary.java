@@ -1,6 +1,6 @@
 package com.example.demo.domain.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -47,6 +48,9 @@ public class Diary {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Emotion emotion;
+
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<DiaryImage> diaryImages;
 
 
     public void updateDiary(String title, String content, Boolean commentEnabled, Emotion emotion) {

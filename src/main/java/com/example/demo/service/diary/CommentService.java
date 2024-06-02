@@ -1,17 +1,16 @@
 package com.example.demo.service.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Comment;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.dto.diary.request.CommentRequest;
 import com.example.demo.dto.diary.response.CommentResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.CommentRepository;
 import com.example.demo.repository.diary.DiaryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

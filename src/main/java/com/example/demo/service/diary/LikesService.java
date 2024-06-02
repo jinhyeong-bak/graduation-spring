@@ -1,16 +1,15 @@
 package com.example.demo.service.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.domain.diary.Likes;
 import com.example.demo.dto.diary.response.LikesResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.DiaryRepository;
 import com.example.demo.repository.diary.LikesRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service

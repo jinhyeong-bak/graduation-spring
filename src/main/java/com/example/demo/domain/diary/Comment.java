@@ -1,6 +1,6 @@
 package com.example.demo.domain.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.dto.diary.request.CommentRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

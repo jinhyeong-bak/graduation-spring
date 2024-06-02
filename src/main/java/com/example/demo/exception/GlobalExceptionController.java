@@ -1,18 +1,15 @@
 package com.example.demo.exception;
 
-import com.example.demo.dto.AccountLockErrorResponse;
-import com.example.demo.dto.EmailAlreadyExistErrorResponse;
-import com.example.demo.dto.ErrorResultResponse;
+import com.example.demo.dto.account.response.AccountLockErrorResponse;
+import com.example.demo.dto.account.response.EmailAlreadyExistErrorResponse;
+import com.example.demo.dto.account.response.ErrorResultResponse;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSendException;
@@ -25,10 +22,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.SocketException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Hidden
 @Slf4j

@@ -1,36 +1,31 @@
 package com.example.demo.service.diary;
 
-import com.example.demo.domain.Account;
+import com.example.demo.domain.account.Account;
 import com.example.demo.domain.diary.Diary;
 import com.example.demo.domain.diary.DiaryImage;
 import com.example.demo.dto.diary.request.DiaryCreationReq;
-import com.example.demo.dto.diary.request.DiaryListOption;
 import com.example.demo.dto.diary.request.DiaryListRequest;
 import com.example.demo.dto.diary.request.DiaryModificationReq;
 import com.example.demo.dto.diary.response.DiaryListResponse;
 import com.example.demo.dto.diary.response.DiaryReadResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
-import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.DiaryImageRepository;
 import com.example.demo.repository.diary.DiaryRepository;
 import com.example.demo.service.AwsS3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.geolatte.geom.codec.Wkt;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.awt.geom.Point2D;
 import java.time.LocalDateTime;
 import java.util.List;
 

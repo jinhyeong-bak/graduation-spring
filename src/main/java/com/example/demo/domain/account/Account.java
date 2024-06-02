@@ -1,4 +1,4 @@
-package com.example.demo.domain;
+package com.example.demo.domain.account;
 
 import com.example.demo.dto.oauth.OAuthProvider;
 import jakarta.persistence.*;
@@ -8,9 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @ToString
