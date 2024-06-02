@@ -7,6 +7,7 @@ import com.example.demo.dto.diary.request.DiaryModificationReq;
 import com.example.demo.dto.diary.response.DiaryListResponse;
 import com.example.demo.dto.diary.response.DiaryReadResponse;
 import com.example.demo.exception.api.ApiResponse;
+import com.example.demo.exception.api.ApiResponseStatus;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AwsS3Service;
 import com.example.demo.service.diary.DiaryService;
@@ -89,13 +90,14 @@ public class DiaryController {
     }
 
     @GetMapping("/diary/{diaryId}")
-    public ResponseEntity<DiaryReadResponse> DiaryReadReq(HttpServletRequest request, @PathVariable(name="diaryId") long diaryId) {
+    public ResponseEntity<Object> DiaryReadReq(HttpServletRequest request, @PathVariable(name="diaryId") long diaryId) {
         try {
             String accessToken = jwtUtil.getAccessTokenFromHeader(request);
              DiaryReadResponse diaryReadResponse = diaryService.readDiary(accessToken, diaryId);
              return ResponseEntity.ok().body(diaryReadResponse);
         }catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("일기 단건 조회 api exception 발생", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(ApiResponseStatus.NONE_EXIST_REVIEW));
         }
     }
 

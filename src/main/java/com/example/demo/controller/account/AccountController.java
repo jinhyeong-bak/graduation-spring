@@ -6,9 +6,9 @@ import com.example.demo.dto.account.response.PasswordVerificationEmail;
 import com.example.demo.dto.account.response.TokenPair;
 import com.example.demo.dto.account.response.VerificationCodeDto;
 import com.example.demo.dto.oauth.OAuthProvider;
+import com.example.demo.exception.api.ApiResponse;
 import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.service.AccountService;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +27,7 @@ public class AccountController {
     private final AccountService accountService;
     private final JwtUtil jwtUtil;
 
-
-    @Value("${security.jwt.validTime.accessToken}")
-    private long accessValidTime;           // 제한시간 30분
-
     @PostMapping("/login")
-    @ApiResponse(responseCode = "401", ref = "loginEx")
     public TokenPair login(@RequestBody LoginRequest loginDto) {
         log.info("email={}, password={}", loginDto.getEmail(), loginDto.getPassword());
         return accountService.login(loginDto);
@@ -40,18 +35,19 @@ public class AccountController {
 
     @PostMapping("/join")
     @ResponseStatus(code = HttpStatus.OK)
-    @ApiResponse(responseCode = "409", description = "Email already Exist")
-    public void signUp(@RequestBody @Valid JoinRequest joinDto) {
+    public ResponseEntity<ApiResponse<String>> signUp(@RequestBody @Valid JoinRequest joinDto) {
         log.info("signUp is called name={}, email={}, password={}", joinDto.getName(), joinDto.getEmail(), joinDto.getPassword());
         accountService.signUp(joinDto);
+        return ResponseEntity.ok().body(new ApiResponse<>("회원가입 성공"));
     }
 
 
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.OK)
-    public void logout(@RequestBody TokenPair tokenPair) {
+    public ResponseEntity<ApiResponse<String>> logout(@RequestBody TokenPair tokenPair) {
         log.info("logout 호출 accessToken: {}, refreshToken: {}", tokenPair.getAccessToken(), tokenPair.getRefreshToken());
         accountService.logout(tokenPair);
+        return ResponseEntity.ok().body(new ApiResponse<>("로그아웃 성공"));
     }
 
     @PostMapping("/refresh")
@@ -62,9 +58,10 @@ public class AccountController {
     }
 
     @PostMapping("/email/duplicate")
-    public ResponseEntity emailDuplicate(@RequestBody @Valid EmailDto emailDto) {
+    public ResponseEntity<ApiResponse<String>> emailDuplicate(@RequestBody @Valid EmailDto emailDto) {
         boolean result = accountService.isEmailExists(emailDto.getEmail());
-        return result ? ResponseEntity.status(HttpStatus.CONFLICT).build() : ResponseEntity.ok().build();
+        return result ? ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>("중복된 이메일이 존재합니다."))
+                : ResponseEntity.ok().body(new ApiResponse<>("중복된 이메일이 존재하지 않습니다."));
     }
 
     @PostMapping("/email/verification")
@@ -78,7 +75,9 @@ public class AccountController {
     public ResponseEntity<PasswordVerificationEmail> findPassword(@RequestBody @Valid EmailDto emailDto){
         String verificationCode = accountService.findPassword(emailDto.getEmail());
 
-        String verificationToken = jwtUtil.createToken(-1L, OAuthProvider.SELF,accessValidTime);
+        long accessValidTime = 300000;  // 5분
+        String verificationToken = jwtUtil.createToken(-1L, OAuthProvider.SELF, accessValidTime);
+
         PasswordVerificationEmail response = new PasswordVerificationEmail();
         response.setVerificationCode(verificationCode);
         response.setVerificationToken(verificationToken);
@@ -86,10 +85,10 @@ public class AccountController {
     }
 
     @PostMapping("/password/renewal")
-    public ResponseEntity renewalPassword(@RequestBody @Valid NewPassword newPassword){
+    public ResponseEntity<ApiResponse<String>> renewalPassword(@RequestBody @Valid NewPassword newPassword){
         jwtUtil.validate(newPassword.getVerificationToken());
         accountService.renewalPassword(newPassword);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new ApiResponse<>("비밀번호 갱신에 성공하였습니다."));
     }
 
 
