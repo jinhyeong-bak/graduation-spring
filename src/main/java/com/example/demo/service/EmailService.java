@@ -16,6 +16,7 @@ public class EmailService {
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
 
+        message.setFrom("dripmind@naver.com");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
