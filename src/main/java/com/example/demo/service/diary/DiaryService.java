@@ -12,6 +12,7 @@ import com.example.demo.infrastructure.jwt.JwtUtil;
 import com.example.demo.repository.account.AccountRepository;
 import com.example.demo.repository.diary.DiaryImageRepository;
 import com.example.demo.repository.diary.DiaryRepository;
+import com.example.demo.repository.diary.LikesRepository;
 import com.example.demo.service.AwsS3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class DiaryService {
 
     private final AccountRepository accountRepository;
     private final DiaryRepository diaryRepository;
+    private final LikesRepository likesRepository;
     private final DiaryImageRepository diaryImageRepository;
     private final AwsS3Service awsS3Service;
     private final JwtUtil jwtUtil;
@@ -165,6 +167,13 @@ public class DiaryService {
         // 이미지 가져오기
         List<DiaryImage> diaryImages = diaryImageRepository.findByDiaryDiaryId(diaryId);
         response.addImgUrls(diaryImages);
+
+        // 요청 유저가 이 게시글에 좋아요를 눌렀는가
+        Account requestUser = accountRepository.findById(requestUserId).orElseThrow(
+                () -> new RuntimeException("Not found requestUser")
+        );
+        boolean isPostLikedByRequestUser = likesRepository.existsByAccountAndDiary(requestUser, diary);
+        response.requestUserLikedThisPost(isPostLikedByRequestUser);
 
         return response;
     }

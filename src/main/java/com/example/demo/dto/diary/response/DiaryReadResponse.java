@@ -40,17 +40,19 @@ public class DiaryReadResponse {
 
     private Emotion emotion;
 
+    @Builder.Default
     private List<String> imgUrls = new LinkedList<>();
 
-    private boolean isCurrentUserDiary;
+    private boolean requestUserDiary;
+    private boolean requestUserLiked;
 
     public static DiaryReadResponse toDto(Diary diary, long requestUserId) {
 
         // 요청 유저가 작성한 글인가
-        boolean isCurrentUserDiary = false;
+        boolean isRequestUserDiary = false;
         Account account = diary.getAccount();
         if(account.getId() - requestUserId == 0) {
-            isCurrentUserDiary = true;
+            isRequestUserDiary = true;
         }
 
         return DiaryReadResponse.builder()
@@ -65,7 +67,7 @@ public class DiaryReadResponse {
                 .longitude(diary.getGeography().getX())
                 .latitude(diary.getGeography().getY())
                 .emotion(diary.getEmotion())
-                .isCurrentUserDiary(isCurrentUserDiary)
+                .requestUserDiary(isRequestUserDiary)
                 .build();
     }
 
@@ -74,5 +76,10 @@ public class DiaryReadResponse {
         for(DiaryImage diaryImage : images) {
             imgUrls.add(diaryImage.getDiaryImage());
         }
+    }
+
+    // 좋아요 조회 api
+    public void requestUserLikedThisPost(boolean result) {
+        requestUserLiked = result;
     }
 }
