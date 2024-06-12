@@ -18,4 +18,6 @@ public class CommentResponse {
 
     private LocalDateTime updatedAt;
 
+    private boolean isOwner;
+
 }

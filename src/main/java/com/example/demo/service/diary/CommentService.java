@@ -95,7 +95,7 @@ public class CommentService {
 
     }
 
-    public List<CommentResponse> getComments(long diaryId) {
+    public List<CommentResponse> getComments(long diaryId, long userId) {
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
@@ -103,11 +103,19 @@ public class CommentService {
         List<Comment> comments = commentRepository.findAllByDiary(diary);
 
         List<CommentResponse> commentResponses = comments.stream()
-                .map(comment -> new CommentResponse(comment.getCommentId(), comment.getContent(), comment.getCreatedAt(), comment.getUpdatedAt()))
+                .map(comment -> {
+                    boolean isOwner = comment.getAccount().getId() == userId;
+                    return new CommentResponse(
+                            comment.getCommentId(),
+                            comment.getContent(),
+                            comment.getCreatedAt(),
+                            comment.getUpdatedAt(),
+                            isOwner
+                    );
+                })
                 .collect(Collectors.toList());
 
         return commentResponses;
-
     }
 
 }
