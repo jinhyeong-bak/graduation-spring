@@ -52,6 +52,9 @@ public class Diary {
     @OneToMany(mappedBy = "diary", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<DiaryImage> diaryImages;
 
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
 
     public void updateDiary(String title, String content, Boolean commentEnabled, Emotion emotion) {
         this.title = title;
