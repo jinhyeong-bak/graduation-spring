@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +36,9 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     public void initialize() {
-        initAccounts();
-        initDiaries();
-        initComments();
+//        initAccounts();
+//        initDiaries();
+//        initComments();
     }
 
     public void initAccounts() {
@@ -64,6 +66,12 @@ public class DataInitializer implements CommandLineRunner {
         if (!accountRepository.existsByEmail("test5@naver.com")) {
             Account account5 = Account.createSignUpMember("test5", "test5@naver.com", securityConfig.passwordEncoder().encode("Password123!"), OAuthProvider.KAKAO);
             accountRepository.save(account5);
+        }
+
+
+        if (!accountRepository.existsByEmail("test@test.com")) {
+            Account account = Account.createSignUpMember("test", "test@test.com", securityConfig.passwordEncoder().encode("Password123!"), OAuthProvider.SELF);
+            accountRepository.save(account);
         }
 
     }
@@ -100,7 +108,14 @@ public class DataInitializer implements CommandLineRunner {
         createDiary("4", "네 번째 일기", Emotion.ANGER, 40, 0, false, true, 5, 126.946852, 37.556849);
         //가톨릭대학교 성신교정
         createDiary("5", "다섯 번째 일기", Emotion.DISGUST, 0, 0, false, false, 5, 127.004596, 37.586310);
-
+        //남경
+        createDiary("남경 꿀맛!", "특제 탕수육 또 먹어야지~", Emotion.JOY, 48, 15, true, false, 6, 126.805261, 37.486181);
+        // 역곡 공원
+        createDiary("배드민턴 꿀잼!", "역시 운동은 즐거워", Emotion.JOY, 5, 3, true, false, 6, 126.805261, 37.486181);
+        // 역곡 공원
+        createDiary("풋살 꿀잼!", "담에 같이 하실 분~", Emotion.JOY, 9, 5, true, false, 6, 126.802454, 37.487865);
+        // 스머프 동산
+        createDiary("잊지 못할 추억!", "우리 우정 영원하자~!", Emotion.JOY, 4, 4, true, false, 6, 126.802856, 37.486620);
     }
 
     public void initComments() {
@@ -146,6 +161,7 @@ public class DataInitializer implements CommandLineRunner {
         diary.setIsPublic(isPublic);
         diary.setAccount(account);
         diary.setGeography(diaryService.setLocation(longitude, latitude));
+        diary.setCreatedAt(LocalDateTime.now());
 
         diaryRepository.save(diary);
 
@@ -163,6 +179,7 @@ public class DataInitializer implements CommandLineRunner {
         comment.setContent(content);
         comment.setAccount(account);
         comment.setDiary(diary);
+        comment.setCreatedAt(LocalDateTime.now());
 
         commentRepository.save(comment);
 
