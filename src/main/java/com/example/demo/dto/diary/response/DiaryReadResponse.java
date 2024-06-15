@@ -45,6 +45,7 @@ public class DiaryReadResponse {
 
     private boolean requestUserDiary;
     private boolean requestUserLiked;
+    private boolean isPublic;
 
     public static DiaryReadResponse toDto(Diary diary, long requestUserId) {
 
@@ -68,6 +69,7 @@ public class DiaryReadResponse {
                 .latitude(diary.getGeography().getY())
                 .emotion(diary.getEmotion())
                 .requestUserDiary(isRequestUserDiary)
+                .isPublic(diary.getIsPublic())
                 .build();
     }
 
