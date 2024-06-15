@@ -45,9 +45,9 @@ public class CommentController {
 
     @GetMapping("/comment/{diaryId}")
     public ApiResponse<List<CommentResponse>> getComments(HttpServletRequest request,
-                                                          @PathVariable(name = "diaryId") long diaryId,
-                                                          @RequestParam long userId) {
-        return new ApiResponse<>(commentService.getComments(diaryId, userId));
+                                                          @PathVariable(name = "diaryId") long diaryId) {
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        return new ApiResponse<>(commentService.getComments(accessToken, diaryId));
     }
 
 }

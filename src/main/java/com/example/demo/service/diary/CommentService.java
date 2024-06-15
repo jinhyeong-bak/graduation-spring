@@ -95,7 +95,12 @@ public class CommentService {
 
     }
 
-    public List<CommentResponse> getComments(long diaryId, long userId) {
+    public List<CommentResponse> getComments(String accessToken, long diaryId) {
+
+        long userId = jwtUtil.getUserPk(accessToken);
+
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Not found User"));
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RuntimeException("Not found Diary"));
