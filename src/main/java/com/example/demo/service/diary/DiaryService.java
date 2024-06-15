@@ -190,13 +190,13 @@ public class DiaryService {
 
         switch (diaryListRequest.getOption()) {
             case LIKE:
-                diaryPage = diaryRepository.getDiaryListOrderByLike(boundary, pageable);
+                diaryPage = diaryRepository.getDiaryListOrderByLike(boundary, requestUserPk, pageable);
                 break;
             case VIEW:
-                diaryPage = diaryRepository.getDiaryListOrderByView(boundary, pageable);
+                diaryPage = diaryRepository.getDiaryListOrderByView(boundary, requestUserPk, pageable);
                 break;
             case RECENT:
-                diaryPage = diaryRepository.getDiaryListOrderByCreatedAt(boundary, pageable);
+                diaryPage = diaryRepository.getDiaryListOrderByCreatedAt(boundary, requestUserPk, pageable);
                 break;
         }
 

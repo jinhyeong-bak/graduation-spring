@@ -18,18 +18,17 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
     List<Diary> findByAccountAndCreatedAtBetween(Account account, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query(value = "select t from Diary as t where within(t.geography, :boundary) = true order by t.likeCount desc ")
-    Page<Diary> getDiaryListOrderByLike(@Param("boundary") Geometry boundary, Pageable pageable);
+    @Query(value = "select t from Diary as t where (t.isPublic = true or t.account.id = :accountId) and within(t.geography, :boundary) = true order by t.likeCount desc ")
+    Page<Diary> getDiaryListOrderByLike(@Param("boundary") Geometry boundary, @Param("accountId") long accountId, Pageable pageable);
 
-    @Query(value = "select t from Diary as t where within(t.geography, :boundary) = true order by t.viewCount desc")
-    Page<Diary> getDiaryListOrderByView(@Param("boundary") Geometry boundary, Pageable pageable);
+    @Query(value = "select t from Diary as t where (t.isPublic = true or t.account.id = :accountId) and within(t.geography, :boundary) = true order by t.viewCount desc")
+    Page<Diary> getDiaryListOrderByView(@Param("boundary") Geometry boundary, @Param("accountId") long accountId, Pageable pageable);
 
-    @Query(value = "select t from Diary as t where within(t.geography, :boundary) = true order by t.createdAt desc")
-    Page<Diary> getDiaryListOrderByCreatedAt(@Param("boundary") Geometry boundary, Pageable pageable);
+    @Query(value = "select t from Diary as t where (t.isPublic = true or t.account.id = :accountId) and within(t.geography, :boundary) = true order by t.createdAt desc")
+    Page<Diary> getDiaryListOrderByCreatedAt(@Param("boundary") Geometry boundary, @Param("accountId") long accountId, Pageable pageable);
 
     List<Diary> findAllByAccountOrderByLikeCountDesc(Account account);
 
     List<Diary> findAllByAccountOrderByViewCountDesc(Account account);
-
 }
 
